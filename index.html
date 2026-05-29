@@ -20,8 +20,7 @@
     </style>
 </head>
 <body class="bg-gray-100 font-sans antialiased text-gray-800 select-none">
-
-    <div id="app">
+<div id="app">
         
         <div v-if="isLoading" class="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center p-4">
             <div class="absolute inset-0 opacity-20 bg-cover bg-center mix-blend-screen" 
@@ -48,6 +47,64 @@
             </div>
         </div>
 
+        <div v-else-if="!isAuthenticated" class="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+            <div class="absolute top-[-10%] left-[-20%] w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-[-10%] right-[-20%] w-72 h-72 bg-amber-500/10 rounded-full blur-3xl"></div>
+
+            <div class="w-full max-w-sm bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl text-white relative z-10">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-black tracking-tight">TraderWin<span class="text-amber-500">.com</span></h2>
+                    <p class="text-xs text-slate-400 mt-1">
+                        {{ isRegistering ? 'Create your institutional sandbox profile' : 'Access secure trading workspace terminal' }}
+                    </p>
+                </div>
+
+                <form @submit.prevent="handleAuthSubmit" class="space-y-4">
+                    <div v-if="isRegistering">
+                        <label class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block mb-1">Full Name</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                            <input v-model="authForm.name" type="text" required placeholder="John Doe" class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block mb-1">Email Address</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                            <input v-model="authForm.email" type="email" required placeholder="name@example.com" class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block mb-1">Password</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                            <input v-model="authForm.password" type="password" required placeholder="••••••••" class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-500">
+                        </div>
+                    </div>
+
+                    <div v-if="isRegistering" class="flex items-start space-x-2 pt-1">
+                        <input type="checkbox" required id="agree" class="mt-0.5 accent-amber-500">
+                        <label for="agree" class="text-[10px] text-slate-400 leading-snug">I certify understanding of Phase 1 Sandbox policies and algorithmic trading risks.</label>
+                    </div>
+
+                    <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-black uppercase tracking-wider rounded-xl transition duration-150 shadow-lg shadow-orange-500/10">
+                        {{ isRegistering ? 'Register Account' : 'Authenticate License' }}
+                    </button>
+                </form>
+
+                <div class="mt-6 pt-4 border-t border-white/5 text-center text-xs">
+                    <p class="text-slate-400">
+                        {{ isRegistering ? 'Already registered on this engine?' : 'First time running this terminal?' }}
+                        <button @click="isRegistering = !isRegistering" class="text-amber-400 font-bold ml-1 hover:underline">
+                            {{ isRegistering ? 'Login here' : 'Sign up now' }}
+                        </button>
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <div v-else class="min-h-screen flex flex-col pb-16">
             
             <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-md">
@@ -62,19 +119,11 @@
                             <p class="text-[10px] text-slate-400 uppercase font-bold tracking-tight">Virtual Balance</p>
                             <p class="font-mono font-bold text-sm text-emerald-400">${{ balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }} <span class="text-[10px] text-white">USD</span></p>
                         </div>
-                        <button disabled class="bg-slate-800 text-slate-500 border border-slate-700 text-xs font-bold px-3 py-2 rounded-lg opacity-50 cursor-not-allowed">
-                            Deposit
+                        <button @click="logout" class="bg-slate-800 text-slate-300 border border-slate-700 text-[10px] uppercase font-bold px-2.5 py-1.5 rounded-lg hover:bg-red-950 hover:text-red-400 hover:border-red-900/50 transition duration-150">
+                            <i class="fa-solid fa-power-off"></i>
                         </button>
                     </div>
-                </div>
-
-                <div class="bg-slate-950 border-b border-slate-800 text-slate-400 text-xs">
-                    <div class="overflow-x-auto flex whitespace-nowrap scrollbar-hide px-2 py-3 space-x-5">
-                        <button v-for="tab in navigationTabs" :key="tab" @click="activeTab = tab" :class="activeTab === tab ? 'text-amber-400 font-bold border-b-2 border-amber-400 pb-1' : 'hover:text-slate-200'" class="px-2 transition font-medium">
-                            {{ tab }}
-                        </button>
-                    </div>
-                </div>
+    </div>
             </header>
 
             <main class="flex-1 max-w-md w-full mx-auto px-4 mt-4">
@@ -317,6 +366,41 @@
 
         createApp({
             setup() {
+                // Put these inside your setup() configuration along with the other refs:
+const isAuthenticated = ref(false);
+const isRegistering = ref(true); // Defaults to Sign-Up first for new users
+const authForm = ref({ name: '', email: '', password: '' });
+
+const handleAuthSubmit = () => {
+    if (isRegistering.value) {
+        toastMessage.value = `Profile registered! Welcome ${authForm.value.name || 'Trader'}.`;
+    } else {
+        toastMessage.value = "License verified. Synchronizing workspaces...";
+    }
+    
+    // Simulate minor network sync delay before unlocking app
+    setTimeout(() => {
+        isAuthenticated.value = true;
+        toastMessage.value = "";
+    }, 1200);
+};
+
+const logout = () => {
+    isAuthenticated.value = false;
+    isRegistering.value = false; // Show Login screen on user sign out
+    authForm.value.password = ""; // Securely clear pass hook
+    toastMessage.value = "Terminal session ended safely.";
+    setTimeout(() => { toastMessage.value = ""; }, 2000);
+};
+
+// Make sure you append them to the final return statement block at the bottom:
+return {
+    isLoading, bootPercent, loadingStatusText,
+    isAuthenticated, isRegistering, authForm, handleAuthSubmit, logout, // Add these
+    activeTab, navigationTabs, signals, searchQuery, filteredSignals,
+    balance, toastMessage, activeModal, chartSpotPrice, chartPoints, digitStats,
+    executeVirtualTrade, triggerGlobalAction, openModal
+};
                 // UI Core System Reactive hooks
                 const isLoading = ref(true);
                 const bootPercent = ref(0);
