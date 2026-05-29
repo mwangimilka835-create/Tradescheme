@@ -279,37 +279,24 @@
                     </div>
                 </div>
 
-                <div v-else-if="activeTab === 'Analysis Tools'" class="space-y-4">
-                    <div class="bg-white border border-gray-200 rounded-xl p-4">
-                        <h3 class="text-xs font-black text-slate-900 uppercase tracking-wide mb-3">Digit Frequency Analyzer (Last 100 Ticks)</h3>
+<div v-if="activeTab !== 'Dashboard'" class="space-y-4">
+                    <div class="bg-white border border-gray-200 rounded-xl p-4 space-y-4">
                         
-                        <div class="grid grid-cols-5 gap-2">
-                            <div v-for="(freq, digit) in digitStats" :key="digit" class="bg-gray-50 border border-gray-200 rounded-lg p-2 text-center">
-                                <span class="block text-xs font-black text-slate-800">{{ digit }}</span>
-                                <span class="text-[10px] font-mono font-bold text-indigo-600">{{ freq }}%</span>
-                                <div class="w-full bg-gray-200 h-1 mt-1 rounded-full overflow-hidden">
-                                    <div class="bg-indigo-600 h-full" :style="{ width: freq * 4 + '%' }"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div v-else class="space-y-4">
-                    <div class="bg-white border border-gray-200 rounded-xl p-4 space-y-4 text-center">
-                        <div class="bg-slate-900 text-white p-4 rounded-xl shadow-xs text-left">
-                            <div class="flex justify-between items-center mb-3">
+                        <div class="bg-slate-900 text-white p-4 rounded-xl shadow-md">
+                            <div class="flex justify-between items-center mb-2">
                                 <span class="text-xs font-black uppercase tracking-wider text-amber-400">{{ activeTab }} Module</span>
-                                <span class="bg-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">ONLINE</span>
+                                <span class="bg-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded animate-pulse">ONLINE</span>
                             </div>
-                            <p class="text-xs text-slate-300 leading-relaxed">Execute continuous automated logical trades based on mathematical tick arrays directly on the index engine parameters.</p>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                Execute continuous automated logical trades based on mathematical tick arrays directly on the index engine parameters.
+                            </p>
                         </div>
 
-                        <div class="bg-white border border-gray-200 rounded-xl p-4 space-y-3 text-left">
+                        <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3">
                             <h3 class="text-xs font-black text-slate-900 uppercase tracking-wide">Automated Strategy Configuration</h3>
                             <div>
                                 <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">Select Asset</label>
-                                <select class="w-full text-xs p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none">
+                                <select class="w-full text-xs p-2 bg-white border border-gray-200 rounded-lg focus:outline-none">
                                     <option>Volatility 100 Index</option>
                                     <option>Volatility 75 Index</option>
                                     <option>Volatility 50 Index</option>
@@ -318,26 +305,50 @@
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">Virtual Stake ($)</label>
-                                    <input type="number" value="10" class="w-full text-xs p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none">
+                                    <input type="number" value="10" class="w-full text-xs p-2 bg-white border border-gray-200 rounded-lg focus:outline-none">
                                 </div>
                                 <div>
                                     <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">Martingale Multiplier</label>
-                                    <input type="number" value="2" class="w-full text-xs p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none">
+                                    <input type="number" value="2" class="w-full text-xs p-2 bg-white border border-gray-200 rounded-lg focus:outline-none">
                                 </div>
                             </div>
-                            <button @click="triggerGlobalAction('Compiling strategy blocks into dynamic script payload...')" class="w-full py-2 bg-slate-900 text-white text-xs font-bold uppercase rounded-lg">
+                            <button @click="triggerGlobalAction('Compiling strategy blocks into dynamic script payload...')" class="w-full py-2.5 bg-slate-900 text-white text-xs font-bold uppercase rounded-lg shadow-sm hover:bg-slate-800 transition-colors">
                                 Compile Strategy Block
                             </button>
                         </div>
 
-                        <div class="border border-dashed border-gray-200 rounded-xl p-6 bg-gray-50/50">
-                            <i class="fa-solid fa-tower-broadcast text-2xl text-slate-400 mb-2 block"></i>
+                        <div class="border border-gray-200 rounded-xl p-4 bg-white space-y-3">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-xs font-black text-slate-900 uppercase tracking-wide">Live Market Graph Stream</h4>
+                                <span class="text-[11px] font-mono font-bold text-indigo-600">V75 [1s]</span>
+                            </div>
+                            <div class="h-28 bg-slate-950 rounded-xl p-2 relative flex items-end justify-between overflow-hidden border border-slate-800">
+                                <div class="absolute top-2 left-2 text-[9px] font-mono text-slate-500">Spot: {{ chartSpotPrice.toFixed(2) }}</div>
+                                <div v-for="(point, i) in chartPoints" :key="i" 
+                                     :style="{ height: point + '%' }" 
+                                     class="w-2 bg-gradient-to-t from-indigo-500/40 to-indigo-400 rounded-t-xs transition-all duration-300"></div>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-xl p-4 bg-white">
+                            <h4 class="text-xs font-black text-slate-900 uppercase tracking-wide mb-2.5">Digit Frequency (Last 100 Ticks)</h4>
+                            <div class="grid grid-cols-5 gap-1.5">
+                                <div v-for="(freq, digit) in digitStats" :key="digit" class="bg-gray-50 border border-gray-100 rounded-lg p-1.5 text-center">
+                                    <span class="block text-[11px] font-black text-slate-800">{{ digit }}</span>
+                                    <span class="text-[9px] font-mono font-bold text-indigo-600">{{ freq }}%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border border-dashed border-gray-200 rounded-xl p-5 bg-gray-50/50 text-center">
+                            <i class="fa-solid fa-tower-broadcast text-xl text-slate-400 mb-1.5 block"></i>
                             <h4 class="text-xs font-bold text-gray-700 uppercase mb-1">{{ activeTab }} Terminal Core</h4>
-                            <p class="text-[11px] text-gray-400 max-w-xs mx-auto mb-3">Bind parameters instantly to copy actions or perform fast sub-second trades execution.</p>
-                            <button @click="triggerGlobalAction('Connecting live interface streams...')" class="px-4 py-1.5 bg-slate-950 text-white font-extrabold text-[10px] rounded-lg uppercase tracking-wider">
+                            <p class="text-[10px] text-gray-400 max-w-xs mx-auto mb-3">Bind parameters instantly to copy actions or perform fast sub-second trades execution.</p>
+                            <button @click="triggerGlobalAction('Connecting live interface streams...')" class="px-5 py-1.5 bg-slate-950 text-white font-extrabold text-[10px] rounded-lg uppercase tracking-wider">
                                 Initialize Sync
                             </button>
                         </div>
+
                     </div>
                 </div>
 
@@ -405,6 +416,7 @@
                 const chartPoints = ref([40, 45, 38, 52, 60, 48, 55, 70, 62, 68, 74, 80]);
                 const digitStats = ref({ 0: 7, 1: 12, 2: 10, 3: 6, 4: 8, 5: 12, 6: 6, 7: 13, 8: 8, 9: 10 });
 
+                // Clean arrays matching perfectly with navigation layouts
                 const navigationTabs = [
                     "Speedbot", "Automated", "Chart", "Analysis Tools", 
                     "Dashboard", "Bot Builder", "Manual Trader", "Apex Bot", 
@@ -531,7 +543,4 @@
     </script>
 </body>
     </html>
-
-                                
-        
-                            
+                        
