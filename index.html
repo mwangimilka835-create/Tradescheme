@@ -2,239 +2,451 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Automated Trading Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TraderWin.com - Ultimate Trading Workspace</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes bounceDelay {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+        .dot-bounce { animation: bounceDelay 1.4s infinite ease-in-out both; }
+        .dot1 { animation-delay: -0.32s; }
+        .dot2 { animation-delay: -0.16s; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
-<body class="bg-gray-50 font-sans antialiased text-gray-800">
+<body class="bg-gray-100 font-sans antialiased text-gray-800 select-none">
 
-    <div id="app" class="pb-12">
+    <div id="app">
         
-        <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16 items-center">
+        <div v-if="isLoading" class="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center p-4">
+            <div class="absolute inset-0 opacity-20 bg-cover bg-center mix-blend-screen" 
+                 style="background-image: url('https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=80');"></div>
+            
+            <div class="relative w-full max-w-sm bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl text-center text-white">
+                <h1 class="text-3xl font-black tracking-tight mb-1">TraderWin<span class="text-amber-500">.com</span></h1>
+                <p class="text-xs tracking-wide text-slate-400 font-medium mb-6">Trading System Workspace v1.0</p>
+
+                <div class="flex items-center justify-center space-x-2 mb-8">
+                    <div class="w-3 h-3 bg-orange-500 rounded-full dot-bounce dot1"></div>
+                    <div class="w-3 h-3 bg-orange-500 rounded-full dot-bounce dot2"></div>
+                    <div class="w-3 h-3 bg-orange-500 rounded-full dot-bounce"></div>
+                </div>
+
+                <p class="text-[11px] tracking-wider text-slate-300 font-mono mb-4">{{ loadingStatusText }}</p>
+                <div class="w-full bg-white/10 rounded-full h-1 overflow-hidden mb-2">
+                    <div class="bg-gradient-to-r from-orange-500 to-amber-400 h-full transition-all duration-75" :style="{ width: bootPercent + '%' }"></div>
+                </div>
+                <div class="flex justify-between items-center text-[9px] uppercase font-bold tracking-widest text-slate-500 font-mono">
+                    <span>Boot sequence</span>
+                    <span class="text-slate-300">{{ bootPercent }}%</span>
+                </div>
+            </div>
+        </div>
+
+        <div v-else class="min-h-screen flex flex-col pb-16">
+            
+            <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-md">
+                <div class="px-4 py-3 flex items-center justify-between border-b border-slate-800">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xl font-black tracking-tighter text-white">Trader<span class="text-amber-500">Win</span></span>
+                        <span class="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[10px] uppercase font-extrabold px-1.5 py-0.5 rounded tracking-wide">Demo</span>
+                    </div>
+                    
                     <div class="flex items-center space-x-3">
-                        <button class="text-gray-600 hover:text-gray-900 focus:outline-none">
-                            <i class="fa-solid fa-bars text-xl"></i>
+                        <div class="text-right">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-tight">Virtual Balance</p>
+                            <p class="font-mono font-bold text-sm text-emerald-400">${{ balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }} <span class="text-[10px] text-white">USD</span></p>
+                        </div>
+                        <button disabled class="bg-slate-800 text-slate-500 border border-slate-700 text-xs font-bold px-3 py-2 rounded-lg opacity-50 cursor-not-allowed">
+                            Deposit
                         </button>
-                        <div class="flex items-center space-x-2">
-                            <div class="bg-indigo-600 text-white p-2 rounded-lg font-bold text-xs tracking-wider">AI</div>
-                            <span class="font-bold text-lg text-gray-900 tracking-tight hidden sm:inline-block">TRADER<span class="text-indigo-600">BOT</span></span>
+                    </div>
+                </div>
+
+                <div class="bg-slate-950 border-b border-slate-800 text-slate-400 text-xs">
+                    <div class="overflow-x-auto flex whitespace-nowrap scrollbar-hide px-2 py-3 space-x-5">
+                        <button v-for="tab in navigationTabs" :key="tab" @click="activeTab = tab" :class="activeTab === tab ? 'text-amber-400 font-bold border-b-2 border-amber-400 pb-1' : 'hover:text-slate-200'" class="px-2 transition font-medium">
+                            {{ tab }}
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1 max-w-md w-full mx-auto px-4 mt-4">
+                
+                <div v-if="activeTab === 'Dashboard'">
+                    
+                    <div class="grid grid-cols-2 gap-2.5 mb-5">
+                        <button @click="activeTab = 'Bot Builder'" class="flex items-center justify-between p-3.5 bg-white rounded-xl border border-gray-200 shadow-2xs hover:border-amber-300 transition text-left">
+                            <span class="font-bold text-xs text-gray-700">Load Bot</span>
+                            <div class="bg-amber-50 text-amber-500 p-2 rounded-lg text-sm"><i class="fa-solid fa-file-import"></i></div>
+                        </button>
+                        <button @click="activeTab = 'Apex Bot'" class="flex items-center justify-between p-3.5 bg-white rounded-xl border border-gray-200 shadow-2xs hover:border-purple-300 transition text-left">
+                            <span class="font-bold text-xs text-gray-700">Premium Bots</span>
+                            <div class="bg-purple-50 text-purple-600 p-2 rounded-lg text-sm"><i class="fa-solid fa-crown"></i></div>
+                        </button>
+                        <button @click="activeTab = 'Free Bots'" class="flex items-center justify-between p-3.5 bg-white rounded-xl border border-gray-200 shadow-2xs hover:border-emerald-300 transition text-left">
+                            <span class="font-bold text-xs text-gray-700">Free Bots</span>
+                            <div class="bg-emerald-50 text-emerald-600 p-2 rounded-lg text-sm"><i class="fa-solid fa-robot"></i></div>
+                        </button>
+                        <button @click="activeTab = 'Analysis Tools'" class="flex items-center justify-between p-3.5 bg-white rounded-xl border border-gray-200 shadow-2xs hover:border-blue-300 transition text-left">
+                            <span class="font-bold text-xs text-gray-700">Analysis Tool</span>
+                            <div class="bg-blue-50 text-blue-600 p-2 rounded-lg text-sm"><i class="fa-solid fa-chart-pie"></i></div>
+                        </button>
+                    </div>
+
+                    <div class="relative mb-5 shadow-2xs">
+                        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold bg-gray-100 px-2 py-1 rounded border border-gray-200">All</span>
+                        <input v-model="searchQuery" type="text" placeholder="Search for a bot..." class="w-full pl-16 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-slate-800">
+                        <i class="fa-solid fa-magnifying-glass absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                    </div>
+
+                    <div class="mb-3 flex items-center justify-between">
+                        <h2 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider flex items-center">
+                            <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping mr-1.5"></span>
+                            Live Trading Signals
+                        </h2>
+                        <span class="text-[10px] text-slate-400 font-bold font-mono uppercase">Phase 1 Sandbox</span>
+                    </div>
+
+                    <div class="space-y-3.5">
+                        <div v-for="(signal, idx) in filteredSignals" :key="signal.id" class="bg-white border border-gray-200 rounded-xl shadow-xs overflow-hidden">
+                            
+                            <div class="p-3.5 flex items-center justify-between">
+                                <div class="flex items-center space-x-2.5">
+                                    <span class="w-5 h-5 flex items-center justify-center rounded bg-slate-900 text-white font-black text-[10px]">
+                                        #1
+                                    </span>
+                                    <div>
+                                        <h3 class="font-black text-xs text-slate-900">{{ signal.asset }}</h3>
+                                        <div class="flex items-center space-x-1.5 mt-0.5">
+                                            <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Confidence</span>
+                                            <span class="text-xs font-mono font-black text-indigo-600">{{ signal.confidence }}%</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div :class="signal.prediction === 'EVEN' || signal.prediction.includes('OVER') ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-red-50 text-red-600 border border-red-100'" 
+                                     class="px-2.5 py-1 rounded-md font-black text-[10px] tracking-wider flex items-center space-x-1">
+                                    <i :class="signal.prediction === 'EVEN' || signal.prediction.includes('OVER') ? 'fa-solid fa-arrow-trend-up' : 'fa-solid fa-arrow-trend-down'"></i>
+                                    <span>{{ signal.prediction }}</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-amber-50 text-amber-800 px-3.5 py-1 text-[10px] font-bold border-t border-b border-amber-100/70 flex items-center">
+                                <i class="fa-solid fa-triangle-exclamation mr-1.5 text-amber-500"></i>
+                                <span>Risk Disclaimer: Asset pricing fluctuates wildly. Risk capital only.</span>
+                            </div>
+
+                            <div class="p-3 bg-gray-50 flex items-center space-x-3">
+                                <div class="flex items-center space-x-1 bg-white border border-gray-200 p-1.5 rounded-lg">
+                                    <span class="text-[9px] font-black text-gray-400 uppercase px-1">Execution</span>
+                                    <button @click="signal.isSlow = !signal.isSlow" :class="signal.isSlow ? 'bg-amber-500 text-white' : 'bg-slate-900 text-white'" class="text-[9px] font-extrabold tracking-widest px-2 py-1 rounded uppercase transition-all duration-150">
+                                        {{ signal.isSlow ? 'Slow' : 'Fast' }}
+                                    </button>
+                                </div>
+
+                                <button @click="executeVirtualTrade(signal)" class="flex-1 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-black tracking-wider uppercase rounded-lg shadow-xs active:scale-[0.99] transition flex items-center justify-center space-x-2">
+                                    <i class="fa-solid fa-circle-play text-amber-400"></i>
+                                    <span>Run</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div v-if="filteredSignals.length === 0" class="text-center p-8 text-gray-400 text-xs">
+                            No tracking index matches your filter criteria.
                         </div>
                     </div>
+                </div>
 
-                    <div class="flex items-center bg-gray-100 px-4 py-2 rounded-full border border-gray-200">
-                        <i class="fa-solid fa-wallet text-indigo-600 mr-2"></i>
-                        <span class="font-mono font-bold text-gray-900">${{ balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
-                        <span class="text-xs text-gray-500 font-semibold ml-1">USD</span>
+                <div v-else-if="['Speedbot', 'Automated', 'Apex Bot', 'Free Bots'].includes(activeTab)" class="space-y-4">
+                    <div class="bg-slate-900 text-white p-4 rounded-xl shadow-xs">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-black uppercase tracking-wider text-amber-400">{{ activeTab }} Module</span>
+                            <span class="bg-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">ONLINE</span>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">Execute continuous automated logical trades based on mathematical tick arrays directly on the index engine parameters.</p>
+                    </div>
+
+                    <div class="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+                        <h3 class="text-xs font-black text-slate-900 uppercase tracking-wide">Automated Strategy Configuration</h3>
+                        <div>
+                            <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">Asset Asset Class</label>
+                            <select class="w-full text-xs p-2 bg-gray-50 border border-gray-200 rounded-lg">
+                                <option>Volatility 100 Index</option>
+                                <option>Volatility 75 Index</option>
+                                <option>Volatility 50 Index</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">Virtual Stake ($)</label>
+                                <input type="number" value="10" class="w-full text-xs p-2 bg-gray-50 border border-gray-200 rounded-lg">
+                            </div>
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">Martingale Multiplier</label>
+                                <input type="number" value="2" class="w-full text-xs p-2 bg-gray-50 border border-gray-200 rounded-lg">
+                            </div>
+                        </div>
+                        <button @click="triggerGlobalAction('Deploying structural automation matrix...')" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider rounded-lg mt-2">
+                            Start Automated Cycle
+                        </button>
                     </div>
                 </div>
-            </div>
 
-            <div class="bg-slate-900 text-gray-300 text-sm border-t border-slate-800">
-                <div class="max-w-7xl mx-auto overflow-x-auto flex whitespace-nowrap scrollbar-hide px-2 py-3 space-x-6">
-                    <a href="#" class="flex items-center space-x-2 text-emerald-400 font-medium px-2"><i class="fa-solid fa-house"></i> <span>Dashboard</span></a>
-                    <a href="#" class="flex items-center space-x-2 hover:text-white transition px-2"><i class="fa-solid fa-gears"></i> <span>Bot Builder</span></a>
-                    <a href="#" class="flex items-center space-x-2 hover:text-white transition px-2"><i class="fa-solid fa-chart-line"></i> <span>Manual Trader</span></a>
-                    <a href="#" class="flex items-center space-x-2 hover:text-white transition px-2"><i class="fa-solid fa-bolt text-amber-400"></i> <span>Apex Bot</span></a>
-                    <a href="#" class="flex items-center space-x-2 hover:text-white transition px-2"><i class="fa-solid fa-gift"></i> <span>Free Bots</span></a>
-                    <a href="#" class="flex items-center space-x-2 hover:text-white transition px-2"><i class="fa-solid fa-users"></i> <span>Copy Trader</span></a>
-                    <a href="#" class="flex items-center space-x-2 hover:text-white transition px-2"><i class="fa-solid fa-magnifying-glass-chart"></i> <span>Analysis Tools</span></a>
+                <div v-else-if="activeTab === 'Chart'" class="space-y-4">
+                    <div class="bg-white border border-gray-200 rounded-xl p-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-xs font-black text-slate-900 uppercase">Live Market Graph Stream</h3>
+                            <span class="text-xs font-mono font-bold text-indigo-600">V75 [1s]</span>
+                        </div>
+                        
+                        <div class="h-40 bg-slate-950 rounded-xl p-2 relative flex items-end justify-between overflow-hidden border border-slate-800">
+                            <div class="absolute top-2 left-2 text-[10px] font-mono text-slate-500">Spot: {{ chartSpotPrice.toFixed(2) }}</div>
+                            <div v-for="(point, i) in chartPoints" :key="i" 
+                                 :style="{ height: point + '%' }" 
+                                 class="w-3 bg-gradient-to-t from-indigo-500/30 to-indigo-400 rounded-t-xs transition-all duration-300"></div>
+                        </div>
+                        
+                        <div class="flex justify-between items-center mt-3 text-[10px] text-gray-400 font-bold uppercase">
+                            <span>Interval: 1 Tick</span>
+                            <span class="text-emerald-500">Feed Synchronized</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </header>
 
-        <main class="max-w-md mx-auto px-4 mt-6">
-
-            <div class="grid grid-cols-2 gap-3 mb-6">
-                <button class="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200 shadow-xs hover:border-indigo-300 transition">
-                    <span class="font-semibold text-sm">Load Bot</span>
-                    <div class="bg-blue-50 text-blue-600 p-2 rounded-lg text-lg"><i class="fa-solid fa-file-import"></i></div>
-                </button>
-                <button class="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200 shadow-xs hover:border-amber-300 transition">
-                    <span class="font-semibold text-sm">Premium Bots</span>
-                    <div class="bg-amber-50 text-amber-500 p-2 rounded-lg text-lg"><i class="fa-solid fa-crown"></i></div>
-                </button>
-                <button class="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200 shadow-xs hover:border-emerald-300 transition">
-                    <span class="font-semibold text-sm">Free Bots</span>
-                    <div class="bg-emerald-50 text-emerald-600 p-2 rounded-lg text-lg"><i class="fa-solid fa-robot"></i></div>
-                </button>
-                <button class="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200 shadow-xs hover:border-purple-300 transition">
-                    <span class="font-semibold text-sm">Analysis Tool</span>
-                    <div class="bg-purple-50 text-purple-600 p-2 rounded-lg text-lg"><i class="fa-solid fa-chart-simple"></i></div>
-                </button>
-            </div>
-
-            <div class="relative mb-6">
-                <select class="absolute left-3 top-1/2 -translate-y-1/2 bg-gray-100 text-xs font-bold py-1 px-2 rounded border border-gray-300 focus:outline-none">
-                    <option>All</option>
-                    <option>Synthetic</option>
-                    <option>Forex</option>
-                </select>
-                <input type="text" placeholder="Search for a bot..." class="w-full pl-20 pr-12 py-3 bg-white border border-gray-200 rounded-xl shadow-xs text-sm focus:outline-none focus:border-indigo-500">
-                <button class="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-900 text-white p-2 rounded-lg text-xs w-8 h-8 flex items-center justify-center">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </button>
-            </div>
-
-            <div class="mb-4 flex items-center justify-between">
-                <h2 class="text-base font-bold text-gray-900 flex items-center">
-                    <span class="w-2 h-2 rounded-full bg-red-500 animate-ping mr-2"></span>
-                    Live Trading Signals
-                </h2>
-                <span class="text-xs text-gray-500 font-medium">Auto-refreshing ticks</span>
-            </div>
-
-            <div class="space-y-4">
-                <div v-for="(signal, index) in signals" :key="signal.id" class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden transition duration-300">
-                    
-                    <div class="p-4 flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <span class="w-6 h-6 flex items-center justify-center rounded-full bg-orange-100 text-orange-600 font-bold text-xs">
-                                #{{ index + 1 }}
-                            </span>
-                            <div>
-                                <h3 class="font-bold text-sm text-gray-900">{{ signal.asset }}</h3>
-                                <div class="flex items-center space-x-2 mt-0.5">
-                                    <span class="text-xs text-gray-400 tracking-wide uppercase font-semibold">Confidence</span>
-                                    <span class="text-xs font-mono font-bold text-gray-700">{{ signal.confidence }}%</span>
+                <div v-else-if="activeTab === 'Analysis Tools'" class="space-y-4">
+                    <div class="bg-white border border-gray-200 rounded-xl p-4">
+                        <h3 class="text-xs font-black text-slate-900 uppercase tracking-wide mb-3">Digit Frequency Analyzer (Last 100 Ticks)</h3>
+                        
+                        <div class="grid grid-cols-5 gap-2">
+                            <div v-for="(freq, digit) in digitStats" :key="digit" class="bg-gray-50 border border-gray-200 rounded-lg p-2 text-center">
+                                <span class="block text-xs font-black text-slate-800">{{ digit }}</span>
+                                <span class="text-[10px] font-mono font-bold text-indigo-600">{{ freq }}%</span>
+                                <div class="w-full bg-gray-200 h-1 mt-1 rounded-full overflow-hidden">
+                                    <div class="bg-indigo-600 h-full" :style="{ width: freq * 4 + '%' }"></div>
                                 </div>
                             </div>
                         </div>
-
-                        <div :class="signal.prediction.includes('UNDER') ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'" class="px-3 py-1 rounded-full font-black text-xs tracking-wider flex items-center space-x-1">
-                            <i :class="signal.prediction.includes('UNDER') ? 'fa-solid fa-caret-down' : 'fa-solid fa-caret-up'"></i>
-                            <span>{{ signal.prediction }}</span>
-                        </div>
                     </div>
+                </div>
 
-                    <div class="bg-amber-50 text-amber-700 px-4 py-1.5 text-[11px] font-semibold border-t border-b border-amber-100 flex items-center">
-                        <i class="fa-solid fa-triangle-exclamation mr-1.5 text-amber-500"></i>
-                        <span>Risk Disclaimer: Synthetic index trading carries financial risk.</span>
-                    </div>
+                <div v-else-if="activeTab === 'Bot Builder'" class="space-y-4">
+                    <div class="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+                        <h3 class="text-xs font-black text-slate-900 uppercase">Visual Logic Strategy Blocks</h3>
+                        <p class="text-xs text-gray-400">Build custom automated structural scripts without editing core backend components.</p>
+                        
+                        <div class="space-y-2">
+                            <div class="bg-blue-50 border border-blue-200 p-2.5 rounded-lg text-xs font-mono text-blue-800 flex items-center justify-between">
+                                <span>[Block] When Match Digit Equals 5</span>
+                                <i class="fa-solid fa-puzzle-piece"></i>
+                            </div>
+                            <div class="bg-purple-50 border border-purple-200 p-2.5 rounded-lg text-xs font-mono text-purple-800 flex items-center justify-between">
+                                <span>[Action] Purchase Digit Over 4 Contract</span>
+                                <i class="fa-solid fa-code-fork"></i>
+                            </div>
+                        </div>
 
-                    <div class="p-4 bg-slate-50 border-b border-gray-100 grid grid-cols-3 gap-2 text-center">
-                        <div class="bg-white p-2 rounded-xl border border-gray-100 shadow-2xs">
-                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">{{ signal.prediction }} %</p>
-                            <p class="text-sm font-black font-mono text-indigo-600 mt-0.5">{{ signal.statPercentage }}%</p>
-                        </div>
-                        <div class="bg-white p-2 rounded-xl border border-gray-100 shadow-2xs">
-                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Most</p>
-                            <p class="text-sm font-black font-mono text-slate-800 mt-0.5">{{ signal.statMost }}</p>
-                        </div>
-                        <div class="bg-white p-2 rounded-xl border border-gray-100 shadow-2xs">
-                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tight">Least</p>
-                            <p class="text-sm font-black font-mono text-slate-800 mt-0.5">{{ signal.statLeast }}</p>
-                        </div>
-                    </div>
-
-                    <div class="p-3 bg-white">
-                        <button @click="executeSignal(signal)" class="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-xs tracking-wide rounded-xl shadow-sm hover:from-emerald-600 hover:to-teal-700 active:scale-[0.99] transition flex items-center justify-center space-x-1.5">
-                            <i class="fa-solid fa-bolt-lightning"></i>
-                            <span>Load {{ signal.prediction }} Signal</span>
+                        <button @click="triggerGlobalAction('Compiling strategy blocks into dynamic script payload...')" class="w-full py-2 bg-slate-900 text-white text-xs font-bold uppercase rounded-lg">
+                            Compile Strategy Block
                         </button>
                     </div>
+                </div>
 
+                <div v-slot="activeTab" v-else class="space-y-4">
+                    <div class="bg-white border border-gray-200 rounded-xl p-4 text-center space-y-3">
+                        <i class="fa-solid fa-tower-broadcast text-3xl text-slate-300"></i>
+                        <h3 class="text-xs font-black text-slate-900 uppercase">{{ activeTab }} Module</h3>
+                        <p class="text-xs text-gray-400">Bind parameters instantly to copy actions or perform fast sub-second trades execution.</p>
+                        <button @click="triggerGlobalAction('Connecting live interface streams...')" class="px-4 py-1.5 bg-slate-900 text-white font-bold text-xs rounded-lg uppercase">
+                            Initialize Sync
+                        </button>
+                    </div>
+                </div>
+
+            </main>
+
+        
+                <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 fixed bottom-0 left-0 right-0 z-50 text-[11px] font-bold text-center py-3 flex items-center justify-center space-x-4">
+                <span>&copy; 2026 TraderWin</span>
+                <button @click="openModal('terms')" class="hover:text-white underline">Terms of Service</button>
+                <button @click="openModal('risk')" class="hover:text-white underline">Risk Disclosure</button>
+            </footer>
+
+            <div v-if="toastMessage" class="fixed bottom-14 left-1/2 -translate-x-1/2 bg-slate-950 text-white text-[11px] font-bold tracking-wide px-4 py-3 rounded-xl shadow-2xl z-50 flex items-center space-x-2.5 border border-slate-800 max-w-xs w-full">
+                <i class="fa-solid fa-circle-notch animate-spin text-amber-400"></i>
+                <span class="font-mono leading-tight">{{ toastMessage }}</span>
+            </div>
+
+            <div v-if="activeModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-[200] flex items-center justify-center p-4">
+                <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full max-h-[70vh] flex flex-col overflow-hidden text-gray-700">
+                    <div class="p-4 border-b border-gray-100 bg-slate-50 flex justify-between items-center">
+                        <h3 class="font-black text-xs uppercase tracking-wider text-slate-900">{{ activeModal === 'terms' ? 'Terms of Service' : 'Financial Risk Disclosure' }}</h3>
+                        <button @click="activeModal = null" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-circle-xmark text-lg"></i></button>
+                    </div>
+                    <div class="p-4 overflow-y-auto text-xs space-y-3 leading-relaxed font-normal">
+                        <div v-if="activeModal === 'terms'">
+                            <p class="font-bold">1. Phase 1 Sandbox Parameters</p>
+                            <p>TraderWin.com operates exclusively as an educational simulation platform in Phase 1. All performance algorithms, financial balances, stakes, tracking indices, payouts, and interface records are completely virtual.</p>
+                            <p class="font-bold mt-2">2. User Accounts & Assets</p>
+                            <p>No real currency can be deposited, stored, or processed on this server interface. The platform does not guarantee live connection parity or market execution equivalence when operating in real execution formats.</p>
+                        </div>
+                        <div v-if="activeModal === 'risk'">
+                            <p class="font-bold text-red-600">High Risk Speculation Warning</p>
+                            <p>Trading Synthetic Indices (such as Volatility 50, 75, or 100 Index matrices) involves intense volatility risk driven by cryptographic mathematical structures. Movements are extreme and instant.</p>
+                            <p class="font-bold mt-2">No Liability Guarantee</p>
+                            <p>TraderWin.com and its developers accept no regulatory or civil liability for capital losses accrued inside live brokers via systems derivative of these calculations. Trade wisely.</p>
+                        </div>
+                    </div>
+                    <div class="p-3 border-t border-gray-100 bg-gray-50 text-right">
+                        <button @click="activeModal = null" class="px-4 py-1.5 bg-slate-900 text-white font-bold text-xs rounded-lg">I Understand</button>
+                    </div>
                 </div>
             </div>
 
-            <div v-if="toastMessage" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-xl z-50 flex items-center space-x-2 border border-slate-800">
-                <i class="fa-solid fa-circle-notch animate-spin text-emerald-400"></i>
-                <span>{{ toastMessage }}</span>
-            </div>
+        </div>
 
-        </main>
     </div>
 
     <script>
-        const { createApp, ref, onMounted } = Vue;
+        const { createApp, ref, computed, onMounted } = Vue;
 
         createApp({
             setup() {
-                // Initial Sandbox Balance
-                const balance = ref(6790.80);
+                // UI Core System Reactive hooks
+                const isLoading = ref(true);
+                const bootPercent = ref(0);
+                const loadingStatusText = ref("Boot sequence loading...");
+                const activeTab = ref("Dashboard");
+                const activeModal = ref(null);
                 const toastMessage = ref("");
+                const balance = ref(6790.80);
+                const searchQuery = ref("");
 
-                // Mocking the real-time data array corresponding to Volatility Tick Streams
+                // Interactive Chart & Analysis Tool Hooks
+                const chartSpotPrice = ref(2450.75);
+                const chartPoints = ref([40, 45, 38, 52, 60, 48, 55, 70, 62, 68, 74, 80]);
+                const digitStats = ref({ 0: 10, 1: 12, 2: 8, 3: 11, 4: 14, 5: 9, 6: 7, 7: 13, 8: 6, 9: 10 });
+
+                // Main Menu Configuration Matrix
+                const navigationTabs = [
+                    "Speedbot", "Automated", "Chart", "Analysis Tools", 
+                    "Dashboard", "Bot Builder", "Manual Trader", "Apex Bot", 
+                    "Copy Trader", "Free Bots"
+                ];
+
+                // Core Specified Volatility Matrices
                 const signals = ref([
-                    {
-                        id: 1,
-                        asset: "Volatility 90 (1s) Index",
-                        prediction: "UNDER 5",
-                        confidence: 48.8,
-                        statPercentage: 56.7,
-                        statMost: 4,
-                        statLeast: 7
-                    },
-                    {
-                        id: 2,
-                        asset: "Volatility 25 Index",
-                        prediction: "OVER 4",
-                        confidence: 49.5,
-                        statPercentage: 58.3,
-                        statMost: 5,
-                        statLeast: 4
-                    },
-                    {
-                        id: 3,
-                        asset: "Volatility 15 (1s) Index",
-                        prediction: "UNDER 5",
-                        confidence: 47.6,
-                        statPercentage: 55.8,
-                        statMost: 3,
-                        statLeast: 7
-                    }
+                    { id: 101, asset: "Volatility 50 Index", prediction: "OVER 4", confidence: 49.2, isSlow: false },
+                    { id: 102, asset: "Volatility 75 Index", prediction: "EVEN", confidence: 51.4, isSlow: true },
+                    { id: 103, asset: "Volatility 100 Index", prediction: "OVER 4", confidence: 47.9, isSlow: false }
                 ]);
 
-                // Simulate algorithmic tick engine stream shifts (Updates data elements live without page refresh)
-                const streamLiveTicks = () => {
-                    setInterval(() => {
-                        signals.value.forEach(sig => {
-                            // Fluctuating confidence ratings slightly simulating algorithmic math shifts
-                            let confDelta = (Math.random() * 1.6 - 0.8);
-                            sig.confidence = parseFloat((sig.confidence + confDelta).toFixed(1));
-                            
-                            // Prevent parameters from dropping or expanding beyond typical bounds
-                            if (sig.confidence > 52) sig.confidence = 49.1;
-                            if (sig.confidence < 45) sig.confidence = 47.8;
+                // Filter search results dynamically
+                const filteredSignals = computed(() => {
+                    return signals.value.filter(sig => 
+                        sig.asset.toLowerCase().includes(searchQuery.value.toLowerCase())
+                    );
+                });
 
-                            // Fluctuate stats matching background variations
-                            if (Math.random() > 0.7) {
-                                sig.statPercentage = parseFloat((54 + Math.random() * 5).toFixed(1));
-                                sig.statMost = Math.floor(Math.random() * 6);
-                                sig.statLeast = Math.floor(Math.random() * 4) + 6;
-                            }
-                        });
-                    }, 1000); // Shift state arrays calculation metrics every 1000ms
+                // Initializer Mock Processing Sequence Routine
+                const executeBootSequence = () => {
+                    const logs = [
+                        "Initializing TraderWin System Core...",
+                        "Mapping Horizontal Navigation Marquees...",
+                        "Injecting Volatility 50/75/100 Streams...",
+                        "Buffering Phase 1 Sandbox Environments...",
+                        "System Terminal Secured!"
+                    ];
+
+                    const interval = setInterval(() => {
+                        if (bootPercent.value < 100) {
+                            bootPercent.value += Math.floor(Math.random() * 5) + 2;
+                            if (bootPercent.value > 100) bootPercent.value = 100;
+
+                            if (bootPercent.value < 20) loadingStatusText.value = logs[0];
+                            else if (bootPercent.value < 45) loadingStatusText.value = logs[1];
+                            else if (bootPercent.value < 65) loadingStatusText.value = logs[2];
+                            else if (bootPercent.value < 90) loadingStatusText.value = logs[3];
+                            else loadingStatusText.value = logs[4];
+                        } else {
+                            clearInterval(interval);
+                            setTimeout(() => {
+                                isLoading.value = false;
+                                startAlgorithmicFluctuations();
+                            }, 500);
+                        }
+                    }, 40);
                 };
 
-                // Trigger contract payload executions simulation 
-                const executeSignal = (signal) => {
-                    toastMessage.value = `Injecting payload: Buying ${signal.asset} contract...`;
+                // Real-time Visual Value Mutation Shifts
+                const startAlgorithmicFluctuations = () => {
+                    setInterval(() => {
+                        if (isLoading.value) return;
+                        
+                        // Fluctuating Signal Confidence values
+                        signals.value.forEach(sig => {
+                            let step = (Math.random() * 1.2 - 0.6);
+                            sig.confidence = parseFloat((sig.confidence + step).toFixed(1));
+                        });
+
+                        // Mutating Chart Spots and Digit Statistics streams
+                        chartSpotPrice.value += (Math.random() * 4 - 2);
+                        chartPoints.value.shift();
+                        chartPoints.value.push(Math.floor(Math.random() * 60) + 20);
+
+                        // Adjusting random analysis frequencies
+                        const randomDigit = Math.floor(Math.random() * 10);
+                        digitStats.value[randomDigit] = Math.floor(Math.random() * 8) + 6;
+
+                    }, 1200);
+                };
+
+                // Virtual Execution Engine Simulation handler
+                const executeVirtualTrade = (signal) => {
+                    const mode = signal.isSlow ? 'SLOW' : 'FAST';
+                    toastMessage.value = `[${mode} MODE] Synchronizing virtual ${signal.asset} contract parameters...`;
                     
                     setTimeout(() => {
-                        // Deduct an assumed stake amount from sandbox wallet balance on success feedback loop
-                        const randomStake = 10.00;
-                        balance.value -= randomStake;
-                        toastMessage.value = `Contract successfully loaded! Paid $${randomStake}.`;
+                        const simulatedStake = 15.00;
+                        balance.value -= simulatedStake;
+                        toastMessage.value = `Executed! Virtual contract placed via ${signal.asset}. Payout pending...`;
                         
                         setTimeout(() => {
-                            toastMessage.value = "";
-                        }, 2500);
+                            const isWin = Math.random() > 0.45;
+                            if (isWin) {
+                                const profit = simulatedStake * 1.95;
+                                balance.value += profit;
+                                toastMessage.value = `✓ WIN! Payout generated successfully: +$${profit.toFixed(2)}`;
+                            } else {
+                                toastMessage.value = `✕ LOSS! Virtual stake contract closed out index bounds.`;
+                            }
+                            setTimeout(() => { toastMessage.value = ""; }, 3000);
+                        }, 2000);
+
                     }, 1500);
                 };
 
+                const triggerGlobalAction = (msg) => {
+                    toastMessage.value = msg;
+                    setTimeout(() => { toastMessage.value = ""; }, 2500);
+                };
+
+                const openModal = (type) => { activeModal.value = type; };
+
                 onMounted(() => {
-                    streamLiveTicks();
+                    executeBootSequence();
                 });
 
                 return {
-                    balance,
-                    signals,
-                    toastMessage,
-                    executeSignal
+                    isLoading, bootPercent, loadingStatusText,
+                    activeTab, navigationTabs, signals, searchQuery, filteredSignals,
+                    balance, toastMessage, activeModal, chartSpotPrice, chartPoints, digitStats,
+                    executeVirtualTrade, triggerGlobalAction, openModal
                 };
             }
         }).mount('#app');
