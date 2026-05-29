@@ -135,9 +135,9 @@
 
             <main class="flex-1 max-w-md w-full mx-auto px-4 mt-4">
                 
-                <div v-if="activeTab === 'Dashboard'">
+                <div v-if="activeTab === 'Dashboard'" class="space-y-4">
                     
-                    <div class="grid grid-cols-2 gap-2.5 mb-5">
+                    <div class="grid grid-cols-2 gap-2.5">
                         <button @click="activeTab = 'Bot Builder'" class="flex items-center justify-between p-3.5 bg-white rounded-xl border border-gray-200 shadow-2xs hover:border-amber-300 transition text-left">
                             <span class="font-bold text-xs text-gray-700">Load Bot</span>
                             <div class="bg-amber-50 text-amber-500 p-2 rounded-lg text-sm"><i class="fa-solid fa-file-import"></i></div>
@@ -156,13 +156,13 @@
                         </button>
                     </div>
 
-                    <div class="relative mb-5 shadow-2xs">
+                    <div class="relative shadow-2xs">
                         <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold bg-gray-100 px-2 py-1 rounded border border-gray-200">All</span>
                         <input v-model="searchQuery" type="text" placeholder="Search for a bot..." class="w-full pl-16 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-slate-800">
                         <i class="fa-solid fa-magnifying-glass absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
                     </div>
 
-                    <div class="mb-3 flex items-center justify-between">
+                    <div class="flex items-center justify-between pt-1">
                         <h2 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider flex items-center">
                             <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping mr-1.5"></span>
                             Live Trading Signals
@@ -208,7 +208,7 @@
 
                             <div class="bg-amber-50 text-amber-800 px-3.5 py-1 text-[10px] font-bold border-t border-b border-amber-100/70 flex items-center">
                                 <i class="fa-solid fa-triangle-exclamation mr-1.5 text-amber-500"></i>
-                                <span>Risk Disclaimer: Asset pricing fluctuates wildly. Risk capital only.</span>
+                                <span>Risk Disclaimer: Pricing fluctuations wildly.</span>
                             </div>
 
                             <div class="p-3 bg-gray-50 flex items-center space-x-3">
@@ -219,7 +219,7 @@
                                     </button>
                                 </div>
 
-                                <button @click="executeVirtualTrade(signal)" class="flex-1 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-black tracking-wider uppercase rounded-lg shadow-xs active:scale-[0.99] transition flex items-center justify-center space-x-2">
+                                <button @click="executeVirtualTrade(signal)" class="flex-1 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-black tracking-wider uppercase rounded-lg shadow-xs flex items-center justify-center space-x-2">
                                     <i class="fa-solid fa-circle-play text-amber-400"></i>
                                     <span>Run</span>
                                 </button>
@@ -231,55 +231,7 @@
                     </div>
                 </div>
 
-                <div v-else-if="['Speedbot', 'Automated', 'Apex Bot', 'Free Bots'].includes(activeTab)" class="space-y-4">
-                    <div class="bg-slate-900 text-white p-4 rounded-xl shadow-xs">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="text-xs font-black uppercase tracking-wider text-amber-400">{{ activeTab }} Module</span>
-                            <span class="bg-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">ONLINE</span>
-                        </div>
-                        <p class="text-xs text-slate-300 leading-relaxed">Execute continuous automated logical trades based on mathematical tick arrays directly on the index engine parameters.</p>
-                    </div>
-
-                    <div class="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
-                        <h3 class="text-xs font-black text-slate-900 uppercase tracking-wide">Automated Strategy Configuration</h3>
-                        <div>
-                            <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">Select Asset</label>
-                            <select class="w-full text-xs p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none">
-                                <option>Volatility 100 Index</option>
-                                <option>Volatility 75 Index</option>
-                                <option>Volatility 50 Index</option>
-                            </select>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">Virtual Stake ($)</label>
-<button @click="triggerGlobalAction('Compiling strategy blocks into dynamic script payload...')" class="w-full py-2 bg-slate-900 text-white text-xs font-bold uppercase rounded-lg">
-                            Compile Strategy Block
-                        </button>
-                    </div>
-                </div>
-
-                <div v-else-if="activeTab === 'Chart'" class="space-y-4">
-                    <div class="bg-white border border-gray-200 rounded-xl p-4">
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="text-xs font-black text-slate-900 uppercase">Live Market Graph Stream</h3>
-                            <span class="text-xs font-mono font-bold text-indigo-600">V75 [1s]</span>
-                        </div>
-                        
-                        <div class="h-40 bg-slate-950 rounded-xl p-2 relative flex items-end justify-between overflow-hidden border border-slate-800">
-                            <div class="absolute top-2 left-2 text-[10px] font-mono text-slate-500">Spot: {{ chartSpotPrice.toFixed(2) }}</div>
-                            <div v-for="(point, i) in chartPoints" :key="i" 
-                                 :style="{ height: point + '%' }" 
-                                 class="w-3 bg-gradient-to-t from-indigo-500/30 to-indigo-400 rounded-t-xs transition-all duration-300"></div>
-                        </div>
-                        <div class="flex justify-between items-center mt-3 text-[10px] text-gray-400 font-bold uppercase">
-                            <span>Interval: 1 Tick</span>
-                            <span class="text-emerald-500">Feed Synchronized</span>
-                        </div>
-                    </div>
-                </div>
-
-                        <div v-if="activeTab !== 'Dashboard'" class="space-y-4">
+                <div v-else class="space-y-4">
                     <div class="bg-white border border-gray-200 rounded-xl p-4 space-y-4">
                         
                         <div class="bg-slate-900 text-white p-4 rounded-xl shadow-xs">
@@ -288,259 +240,258 @@
                                 <span class="bg-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">ONLINE</span>
                             </div>
                             <p class="text-xs text-slate-300 leading-relaxed">
-                                Continuous algorithmic simulation engine configured for high-speed analysis cycles on the live index framework.
+                                Continuous automated logical simulator engine built for high-frequency algorithmic evaluations on synthetic index parameters.
                             </p>
                         </div>
 
                         <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3">
-                            <h3 class="text-xs font-black text-slate-900 uppercase tracking-wide">Automated Strategy Setup</h3>
+                            <h3 class="text-xs font-black text-slate-900 uppercase tracking-wide">Automated Strategy Configuration</h3>
                             <div>
-                                <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">Select Index Target</label>
+                                <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">Select Asset Index</label>
                                 <select class="w-full text-xs p-2 bg-white border border-gray-200 rounded-lg focus:outline-none">
                                     <option>Volatility 100 Index</option>
                                     <option>Volatility 75 Index</option>
                                     <option>Volatility 50 Index</option>
                                 </select>
                             </div>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">Virtual Stake ($)</label>
-                                    <input type="number" value="10" class="w-full text-xs p-2 bg-white border border-gray-200 rounded-lg focus:outline-none">
-                                </div>
-                                <div>
-                                    <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">Martingale Scale</label>
-                                    <input type="number" value="2" class="w-full text-xs p-2 bg-white border border-gray-200 rounded-lg focus:outline-none">
-                                </div>
+                      <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">Virtual Stake ($)</label>
+                                <input type="number" value="10" class="w-full text-xs p-2 bg-white border border-gray-200 rounded-lg focus:outline-none">
                             </div>
-                            <button @click="triggerGlobalAction('Deploying ' + activeTab + ' automated strategy matrix...')" class="w-full py-2.5 bg-slate-900 text-white text-xs font-bold uppercase rounded-lg shadow-xs">
-                                Start {{ activeTab }} Cycle
-                            </button>
-                        </div>
-
-                        <div class="border border-gray-200 rounded-xl p-4 bg-white space-y-3">
-                            <div class="flex justify-between items-center">
-                                <h4 class="text-xs font-black text-slate-900 uppercase tracking-wide">Live Market Graph Stream</h4>
-                                <span class="text-[11px] font-mono font-bold text-indigo-600">V75 [1s]</span>
-                            </div>
-                            <div class="h-32 bg-slate-950 rounded-xl p-2 relative flex items-end justify-between overflow-hidden border border-slate-800">
-                                <div class="absolute top-2 left-2 text-[9px] font-mono text-slate-500">Spot: {{ chartSpotPrice.toFixed(2) }}</div>
-                                <div v-for="(point, i) in chartPoints" :key="i" 
-                                     :style="{ height: point + '%' }" 
-                                     class="w-2 bg-gradient-to-t from-indigo-500/40 to-indigo-400 rounded-t-xs transition-all duration-300"></div>
+                            <div>
+                                <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">Martingale Scale</label>
+                                <input type="number" value="2" class="w-full text-xs p-2 bg-white border border-gray-200 rounded-lg focus:outline-none">
                             </div>
                         </div>
+                        <button @click="triggerGlobalAction('Deploying ' + activeTab + ' continuous strategy automated matrix...')" class="w-full py-2.5 bg-slate-900 text-white text-xs font-bold uppercase rounded-lg shadow-xs">
+                            Start Automated Cycle
+                        </button>
+                    </div>
 
-                        <div class="border border-gray-200 rounded-xl p-4 bg-white">
-                            <h4 class="text-xs font-black text-slate-900 uppercase tracking-wide mb-2.5">Digit Frequency Analyzer</h4>
-                            <div class="grid grid-cols-5 gap-1.5">
-                                <div v-for="(freq, digit) in digitStats" :key="digit" class="bg-gray-50 border border-gray-100 rounded-lg p-1.5 text-center">
-                                    <span class="block text-[11px] font-black text-slate-800">{{ digit }}</span>
-                                    <span class="text-[9px] font-mono font-bold text-indigo-600">{{ freq }}%</span>
-                                </div>
+                    <div class="border border-gray-200 rounded-xl p-4 bg-white space-y-3">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-xs font-black text-slate-900 uppercase tracking-wide">Live Market Graph Stream</h4>
+                            <span class="text-[11px] font-mono font-bold text-indigo-600">V75 [1s]</span>
+                        </div>
+                        <div class="h-32 bg-slate-950 rounded-xl p-2 relative flex items-end justify-between overflow-hidden border border-slate-800">
+                            <div class="absolute top-2 left-2 text-[9px] font-mono text-slate-500">Spot: {{ chartSpotPrice.toFixed(2) }}</div>
+                            <div v-for="(point, i) in chartPoints" :key="i" 
+                                 :style="{ height: point + '%' }" 
+                                 class="w-2 bg-gradient-to-t from-indigo-500/40 to-indigo-400 rounded-t-xs transition-all duration-300"></div>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-200 rounded-xl p-4 bg-white">
+                        <h4 class="text-xs font-black text-slate-900 uppercase tracking-wide mb-2.5">Digit Frequency Analyzer (Last 100 Ticks)</h4>
+                        <div class="grid grid-cols-5 gap-1.5">
+                            <div v-for="(freq, digit) in digitStats" :key="digit" class="bg-gray-50 border border-gray-100 rounded-lg p-1.5 text-center">
+                                <span class="block text-[11px] font-black text-slate-800">{{ digit }}</span>
+                                <span class="text-[9px] font-mono font-bold text-indigo-600">{{ freq }}%</span>
                             </div>
                         </div>
-
-                        <div class="border border-dashed border-gray-200 rounded-xl p-5 bg-gray-50/50 text-center">
-                            <i class="fa-solid fa-tower-broadcast text-xl text-slate-400 mb-1.5 block"></i>
-                            <h4 class="text-xs font-bold text-gray-700 uppercase mb-1">{{ activeTab }} Terminal Sync</h4>
-                            <p class="text-[10px] text-gray-400 max-w-xs mx-auto mb-3">Establish low-latency sub-second socket connections to virtual platform endpoints.</p>
-                            <button @click="triggerGlobalAction('Establishing secure socket relay parameters...')" class="px-5 py-1.5 bg-slate-950 text-white font-extrabold text-[10px] rounded-lg uppercase tracking-wider">
-                                Initialize Sync
-                            </button>
-                        </div>
-
                     </div>
-                </div>
 
-            </main>
-
-            <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 fixed bottom-0 left-0 right-0 z-50 text-[11px] font-bold text-center py-3 flex items-center justify-center space-x-4">
-                <span>&copy; 2026 TraderWin</span>
-                <button @click="openModal('terms')" class="hover:text-white underline">Terms of Service</button>
-                <button @click="openModal('risk')" class="hover:text-white underline">Risk Disclosure</button>
-            </footer>
-
-            <div v-if="toastMessage" class="fixed bottom-14 left-1/2 -translate-x-1/2 bg-slate-950 text-white text-[11px] font-bold tracking-wide px-4 py-3 rounded-xl shadow-2xl z-50 flex items-center space-x-2.5 border border-slate-800 max-w-xs w-full">
-                <i class="fa-solid fa-circle-notch animate-spin text-amber-400"></i>
-                <span class="font-mono leading-tight">{{ toastMessage }}</span>
-            </div>
-
-            <div v-if="activeModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-[200] flex items-center justify-center p-4">
-                <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full max-h-[70vh] flex flex-col overflow-hidden text-gray-700">
-                    <div class="p-4 border-b border-gray-100 bg-slate-50 flex justify-between items-center">
-                        <h3 class="font-black text-xs uppercase tracking-wider text-slate-900">{{ activeModal === 'terms' ? 'Terms of Service' : 'Financial Risk Disclosure' }}</h3>
-                        <button @click="activeModal = null" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-circle-xmark text-lg"></i></button>
+                    <div class="border border-dashed border-gray-200 rounded-xl p-5 bg-gray-50/50 text-center">
+                        <i class="fa-solid fa-tower-broadcast text-xl text-slate-400 mb-1.5 block"></i>
+                        <h4 class="text-xs font-bold text-gray-700 uppercase mb-1">{{ activeTab }} Terminal Core</h4>
+                        <p class="text-[10px] text-gray-400 max-w-xs mx-auto mb-3">Bind parameters instantly to copy actions or perform fast sub-second trades execution.</p>
+                        <button @click="triggerGlobalAction('Connecting secure structural layout stream parameters...')" class="px-5 py-1.5 bg-slate-950 text-white font-extrabold text-[10px] rounded-lg uppercase tracking-wider">
+                            Initialize Sync
+                        </button>
                     </div>
-                    <div class="p-4 overflow-y-auto text-xs space-y-3 leading-relaxed font-normal">
-                        <div v-if="activeModal === 'terms'">
-                            <p class="font-bold">1. Phase 1 Sandbox Parameters</p>
-                            <p>TraderWin.com operates exclusively as an educational simulation platform in Phase 1. All performance algorithms, financial balances, stakes, tracking indices, payouts, and interface records are completely virtual.</p>
-                        </div>
-                        <div v-if="activeModal === 'risk'">
-                            <p class="font-bold text-red-600">High Risk Speculation Warning</p>
-                            <p>Trading Synthetic Indices involves intense volatility risk driven by cryptographic mathematical structures. Movements are extreme and instant.</p>
-                        </div>
-                    </div>
-                    <div class="p-3 border-t border-gray-100 bg-gray-50 text-right">
-                        <button @click="activeModal = null" class="px-4 py-1.5 bg-slate-900 text-white font-bold text-xs rounded-lg">I Understand</button>
-                    </div>
+
                 </div>
             </div>
 
+        </main>
+
+        <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 fixed bottom-0 left-0 right-0 z-50 text-[11px] font-bold text-center py-3 flex items-center justify-center space-x-4">
+            <span>&copy; 2026 TraderWin</span>
+            <button @click="openModal('terms')" class="hover:text-white underline">Terms of Service</button>
+            <button @click="openModal('risk')" class="hover:text-white underline">Risk Disclosure</button>
+        </footer>
+
+        <div v-if="toastMessage" class="fixed bottom-14 left-1/2 -translate-x-1/2 bg-slate-950 text-white text-[11px] font-bold tracking-wide px-4 py-3 rounded-xl shadow-2xl z-50 flex items-center space-x-2.5 border border-slate-800 max-w-xs w-full">
+            <i class="fa-solid fa-circle-notch animate-spin text-amber-400"></i>
+            <span class="font-mono leading-tight">{{ toastMessage }}</span>
+        </div>
+
+        <div v-if="activeModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-[200] flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full max-h-[70vh] flex flex-col overflow-hidden text-gray-700">
+                <div class="p-4 border-b border-gray-100 bg-slate-50 flex justify-between items-center">
+                    <h3 class="font-black text-xs uppercase tracking-wider text-slate-900">{{ activeModal === 'terms' ? 'Terms of Service' : 'Financial Risk Disclosure' }}</h3>
+                    <button @click="activeModal = null" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-circle-xmark text-lg"></i></button>
+                </div>
+                <div class="p-4 overflow-y-auto text-xs space-y-3 leading-relaxed font-normal">
+                    <div v-if="activeModal === 'terms'">
+                        <p class="font-bold">1. Phase 1 Sandbox Parameters</p>
+                        <p>TraderWin.com operates exclusively as an educational simulation platform in Phase 1. All performance algorithms, financial balances, stakes, tracking indices, payouts, and interface records are completely virtual.</p>
+                    </div>
+                    <div v-if="activeModal === 'risk'">
+                        <p class="font-bold text-red-600">High Risk Speculation Warning</p>
+                        <p>Trading Synthetic Indices involves intense volatility risk driven by cryptographic mathematical structures. Movements are extreme and instant.</p>
+                    </div>
+                </div>
+                <div class="p-3 border-t border-gray-100 bg-gray-50 text-right">
+                    <button @click="activeModal = null" class="px-4 py-1.5 bg-slate-900 text-white font-bold text-xs rounded-lg">I Understand</button>
+                </div>
+            </div>
         </div>
 
     </div>
+</div>
 
-    <script>
-        const { createApp, ref, computed, onMounted } = Vue;
+<script>
+    const { createApp, ref, computed, onMounted } = Vue;
 
-        createApp({
-            setup() {
-                // UI Core Hooks & State Controllers
-                const isLoading = ref(true);
-                const bootPercent = ref(0);
-                const loadingStatusText = ref("Boot sequence loading...");
-                const activeTab = ref("Dashboard");
-                const activeModal = ref(null);
-                const toastMessage = ref("");
-                const balance = ref(6790.80);
-                const searchQuery = ref("");
+    createApp({
+        setup() {
+            // UI Core Hooks & State Controllers
+            const isLoading = ref(true);
+            const bootPercent = ref(0);
+            const loadingStatusText = ref("Boot sequence loading...");
+            const activeTab = ref("Dashboard");
+            const activeModal = ref(null);
+            const toastMessage = ref("");
+            const balance = ref(6790.80);
+            const searchQuery = ref("");
 
-                // USER AUTHENTICATION STATES
-                const isAuthenticated = ref(false);
-                const isRegistering = ref(true);
-                const authForm = ref({ name: '', email: '', password: '' });
+            // USER AUTHENTICATION STATES
+            const isAuthenticated = ref(false);
+            const isRegistering = ref(true);
+            const authForm = ref({ name: '', email: '', password: '' });
 
-                // Analytics Mock Data Streams
-                const chartSpotPrice = ref(2450.75);
-                const chartPoints = ref([40, 45, 38, 52, 60, 48, 55, 70, 62, 68, 74, 80]);
-                const digitStats = ref({ 0: 7, 1: 12, 2: 10, 3: 6, 4: 8, 5: 12, 6: 6, 7: 13, 8: 8, 9: 10 });
+            // Analytics Mock Data Streams
+            const chartSpotPrice = ref(2450.75);
+            const chartPoints = ref([40, 45, 38, 52, 60, 48, 55, 70, 62, 68, 74, 80]);
+            const digitStats = ref({ 0: 7, 1: 12, 2: 10, 3: 6, 4: 8, 5: 12, 6: 6, 7: 13, 8: 8, 9: 10 });
 
-                // Navigation Array
-                const navigationTabs = [
-                    "Speedbot", "Automated", "Chart", "Analysis Tools", 
-                    "Dashboard", "Bot Builder", "Manual Trader", "Apex Bot", 
-                    "Copy Trader", "Free Bots"
+            // Standardized Array Strings
+            const navigationTabs = [
+                "Speedbot", "Automated", "Chart", "Analysis Tools", 
+                "Dashboard", "Bot Builder", "Manual Trader", "Apex Bot", 
+                "Copy Trader", "Free Bots"
+            ];
+
+            const signals = ref([
+                { id: 101, asset: "Volatility 50 Index", prediction: "OVER 4", confidence: 49.2, isSlow: false, showDetails: false, statPercent: "58.3%", mostDigit: 5, leastDigit: 4 },
+                { id: 102, asset: "Volatility 75 Index", prediction: "EVEN", confidence: 51.4, isSlow: true, showDetails: false, statPercent: "56.7%", mostDigit: 3, leastDigit: 7 },
+                { id: 103, asset: "Volatility 100 Index", prediction: "OVER 4", confidence: 47.9, isSlow: false, showDetails: false, statPercent: "57.5%", mostDigit: 4, leastDigit: 7 }
+            ]);
+
+            const filteredSignals = computed(() => {
+                return signals.value.filter(sig => 
+                    sig.asset.toLowerCase().includes(searchQuery.value.toLowerCase())
+                );
+            });
+
+            // Loader Simulation Thread
+            const executeBootSequence = () => {
+                const logs = [
+                    "Initializing TraderWin System Core...",
+                    "Mapping Horizontal Navigation Marquees...",
+                    "Buffering Phase 1 Sandbox Environments...",
+                    "System Terminal Secured!"
                 ];
 
-                const signals = ref([
-                    { id: 101, asset: "Volatility 50 Index", prediction: "OVER 4", confidence: 49.2, isSlow: false, showDetails: false, statPercent: "58.3%", mostDigit: 5, leastDigit: 4 },
-                    { id: 102, asset: "Volatility 75 Index", prediction: "EVEN", confidence: 51.4, isSlow: true, showDetails: false, statPercent: "56.7%", mostDigit: 3, leastDigit: 7 },
-                    { id: 103, asset: "Volatility 100 Index", prediction: "OVER 4", confidence: 47.9, isSlow: false, showDetails: false, statPercent: "57.5%", mostDigit: 4, leastDigit: 7 }
-                ]);
+                const interval = setInterval(() => {
+                    if (bootPercent.value < 100) {
+                        bootPercent.value += Math.floor(Math.random() * 6) + 3;
+                        if (bootPercent.value > 100) bootPercent.value = 100;
 
-                const filteredSignals = computed(() => {
-                    return signals.value.filter(sig => 
-                        sig.asset.toLowerCase().includes(searchQuery.value.toLowerCase())
-                    );
-                });
+                        if (bootPercent.value < 25) loadingStatusText.value = logs[0];
+                        else if (bootPercent.value < 55) loadingStatusText.value = logs[1];
+                        else if (bootPercent.value < 85) loadingStatusText.value = logs[2];
+                        else loadingStatusText.value = logs[3];
+                    } else {
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            isLoading.value = false;
+                            startAlgorithmicFluctuations();
+                        }, 500);
+                    }
+                }, 45);
+            };
 
-                // Standard App Loader Sequence
-                const executeBootSequence = () => {
-                    const logs = [
-                        "Initializing TraderWin System Core...",
-                        "Mapping Horizontal Navigation Marquees...",
-                        "Buffering Phase 1 Sandbox Environments...",
-                        "System Terminal Secured!"
-                    ];
+            // Chart and Stat Fluctuations Engine Loop
+            const startAlgorithmicFluctuations = () => {
+                setInterval(() => {
+                    if (isLoading.value || !isAuthenticated.value) return;
+                    
+                    signals.value.forEach(sig => {
+                        let step = (Math.random() * 1.2 - 0.6);
+                        sig.confidence = parseFloat((sig.confidence + step).toFixed(1));
+                    });
 
-                    const interval = setInterval(() => {
-                        if (bootPercent.value < 100) {
-                            bootPercent.value += Math.floor(Math.random() * 6) + 3;
-                            if (bootPercent.value > 100) bootPercent.value = 100;
+                    chartSpotPrice.value += (Math.random() * 4 - 2);
+                    chartPoints.value.shift();
+                    chartPoints.value.push(Math.floor(Math.random() * 60) + 20);
 
-                            if (bootPercent.value < 25) loadingStatusText.value = logs[0];
-                            else if (bootPercent.value < 55) loadingStatusText.value = logs[1];
-                            else if (bootPercent.value < 85) loadingStatusText.value = logs[2];
-                            else loadingStatusText.value = logs[3];
-                        } else {
-                            clearInterval(interval);
-                            setTimeout(() => {
-                                isLoading.value = false;
-                                startAlgorithmicFluctuations();
-                            }, 500);
-                        }
-                    }, 45);
-                };
+                    const randomDigit = Math.floor(Math.random() * 10);
+                    digitStats.value[randomDigit] = Math.floor(Math.random() * 8) + 6;
+                }, 1200);
+            };
 
-                // Real-time UI Number Generator Loop
-                const startAlgorithmicFluctuations = () => {
-                    setInterval(() => {
-                        if (isLoading.value || !isAuthenticated.value) return;
-                        
-                        signals.value.forEach(sig => {
-                            let step = (Math.random() * 1.2 - 0.6);
-                            sig.confidence = parseFloat((sig.confidence + step).toFixed(1));
-                        });
+            // Authentication Handling Form
+            const handleAuthSubmit = () => {
+                toastMessage.value = isRegistering.value ? "Profile saved! Syncing secure environment..." : "Verifying terminal license credentials...";
+                setTimeout(() => {
+                    isAuthenticated.value = true;
+                    toastMessage.value = "";
+                }, 1200);
+            };
 
-                        chartSpotPrice.value += (Math.random() * 4 - 2);
-                        chartPoints.value.shift();
-                        chartPoints.value.push(Math.floor(Math.random() * 60) + 20);
+            const logout = () => {
+                isAuthenticated.value = false;
+                isRegistering.value = false; 
+                toastMessage.value = "Session terminated safely.";
+                setTimeout(() => { toastMessage.value = ""; }, 2000);
+            };
 
-                        const randomDigit = Math.floor(Math.random() * 10);
-                        digitStats.value[randomDigit] = Math.floor(Math.random() * 8) + 6;
-                    }, 1200);
-                };
-
-                // Authentication Form Submission Manager
-                const handleAuthSubmit = () => {
-                    toastMessage.value = isRegistering.value ? "Profile saved! Syncing secure environment..." : "Verifying terminal license credentials...";
-                    setTimeout(() => {
-                        isAuthenticated.value = true;
-                        toastMessage.value = "";
-                    }, 1200);
-                };
-
-                const logout = () => {
-                    isAuthenticated.value = false;
-                    isRegistering.value = false; 
-                    toastMessage.value = "Session terminated safely.";
-                    setTimeout(() => { toastMessage.value = ""; }, 2000);
-                };
-
-                const executeVirtualTrade = (signal) => {
-                    const mode = signal.isSlow ? 'SLOW' : 'FAST';
-                    toastMessage.value = `[${mode} MODE] Synchronizing virtual ${signal.asset} contract parameters...`;
+            // Trade Simulation Trigger
+            const executeVirtualTrade = (signal) => {
+                const mode = signal.isSlow ? 'SLOW' : 'FAST';
+                toastMessage.value = `[${mode} MODE] Synchronizing virtual ${signal.asset} contract parameters...`;
+                
+                setTimeout(() => {
+                    const stake = 15.00;
+                    balance.value -= stake;
+                    toastMessage.value = `Executed! Virtual contract placed via ${signal.asset}. Payout pending...`;
                     
                     setTimeout(() => {
-                        const stake = 15.00;
-                        balance.value -= stake;
-                        toastMessage.value = `Executed! Virtual contract placed via ${signal.asset}. Payout pending...`;
-                        
-                        setTimeout(() => {
-                            if (Math.random() > 0.46) {
-                                const winAmt = stake * 1.95;
-                                balance.value += winAmt;
-                                toastMessage.value = `✓ SUCCESSFUL RECOVERY! +$${winAmt.toFixed(2)}`;
-                            } else {
-                                toastMessage.value = `✕ LOSS! Virtual stake contract closed out index bounds.`;
-                            }
-                            setTimeout(() => { toastMessage.value = ""; }, 3000);
-                        }, 2000);
-                    }, 1500);
-                };
+                        if (Math.random() > 0.46) {
+                            const winAmt = stake * 1.95;
+                            balance.value += winAmt;
+                            toastMessage.value = `✓ SUCCESSFUL RECOVERY! +$${winAmt.toFixed(2)}`;
+                        } else {
+                            toastMessage.value = `✕ LOSS! Virtual stake contract closed out index bounds.`;
+                        }
+                        setTimeout(() => { toastMessage.value = ""; }, 3000);
+                    }, 2000);
+                }, 1500);
+            };
 
-                const triggerGlobalAction = (msg) => {
-                    toastMessage.value = msg;
-                    setTimeout(() => { toastMessage.value = ""; }, 2500);
-                };
+            const triggerGlobalAction = (msg) => {
+                toastMessage.value = msg;
+                setTimeout(() => { toastMessage.value = ""; }, 2500);
+            };
 
-                const openModal = (type) => { activeModal.value = type; };
+            const openModal = (type) => { activeModal.value = type; };
 
-                onMounted(() => {
-                    executeBootSequence();
-                });
+            onMounted(() => {
+                executeBootSequence();
+            });
 
-                return {
-                    isLoading, bootPercent, loadingStatusText,
-                    isAuthenticated, isRegistering, authForm, handleAuthSubmit, logout,
-                    activeTab, navigationTabs, signals, searchQuery, filteredSignals,
-                    balance, toastMessage, activeModal, chartSpotPrice, chartPoints, digitStats,
-                    executeVirtualTrade, triggerGlobalAction, openModal
-                };
-            }
-        }).mount('#app');
-    </script>
+            return {
+                isLoading, bootPercent, loadingStatusText,
+                isAuthenticated, isRegistering, authForm, handleAuthSubmit, logout,
+                activeTab, navigationTabs, signals, searchQuery, filteredSignals,
+                balance, toastMessage, activeModal, chartSpotPrice, chartPoints, digitStats,
+                executeVirtualTrade, triggerGlobalAction, openModal
+            };
+        }
+    }).mount('#app');
+</script>
 </body>
-    </html>
-                        
+                            </html>
