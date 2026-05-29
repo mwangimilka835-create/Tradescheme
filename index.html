@@ -20,7 +20,7 @@
     </style>
 </head>
 <body class="bg-gray-100 font-sans antialiased text-gray-800 select-none">
-<div id="app">
+    <div id="app">
         
         <div v-if="isLoading" class="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center p-4">
             <div class="absolute inset-0 opacity-20 bg-cover bg-center mix-blend-screen" 
@@ -123,7 +123,14 @@
                             <i class="fa-solid fa-power-off"></i>
                         </button>
                     </div>
-    </div>
+                </div>
+
+                <div class="flex items-center space-x-6 overflow-x-auto px-4 py-2.5 bg-slate-950 border-t border-slate-900 text-xs font-black uppercase tracking-wider scrollbar-hide">
+                    <button v-for="tab in navigationTabs" :key="tab" @click="activeTab = tab" 
+                            :class="activeTab === tab ? 'text-amber-400 border-b-2 border-amber-400 pb-1' : 'text-slate-400 pb-1 hover:text-white'">
+                        {{ tab }}
+                    </button>
+                </div>
             </header>
 
             <main class="flex-1 max-w-md w-full mx-auto px-4 mt-4">
@@ -169,7 +176,7 @@
                             <div class="p-3.5 flex items-center justify-between">
                                 <div class="flex items-center space-x-2.5">
                                     <span class="w-5 h-5 flex items-center justify-center rounded bg-slate-900 text-white font-black text-[10px]">
-                                        #1
+                                        #{{ idx + 1 }}
                                     </span>
                                     <div>
                                         <h3 class="font-black text-xs text-slate-900">{{ signal.asset }}</h3>
@@ -184,6 +191,18 @@
                                      class="px-2.5 py-1 rounded-md font-black text-[10px] tracking-wider flex items-center space-x-1">
                                     <i :class="signal.prediction === 'EVEN' || signal.prediction.includes('OVER') ? 'fa-solid fa-arrow-trend-up' : 'fa-solid fa-arrow-trend-down'"></i>
                                     <span>{{ signal.prediction }}</span>
+                                </div>
+                            </div>
+
+                            <div class="px-3.5 pb-2.5 pt-1 text-[11px] font-bold border-t border-gray-100 bg-slate-50/50 flex flex-col space-y-1.5">
+                                <button @click="signal.showDetails = !signal.showDetails" class="text-slate-500 hover:text-slate-900 flex items-center justify-between w-full">
+                                    <span class="flex items-center"><i class="fa-solid fa-chart-bar mr-1.5 text-slate-400"></i> Analytics Ticks Breakdown</span>
+                                    <i :class="signal.showDetails ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down'"></i>
+                                </button>
+                                <div v-if="signal.showDetails" class="grid grid-cols-3 gap-2 pt-2 border-t border-gray-200/60 font-mono text-[10px] text-gray-600">
+                                    <div><span class="text-gray-400 block uppercase text-[8px] font-bold">Predict Matrix</span><span class="text-emerald-600 font-black">{{ signal.statPercent }}</span></div>
+                                    <div><span class="text-gray-400 block uppercase text-[8px] font-bold">Most Freq</span><span class="text-slate-900 font-black">Digit {{ signal.mostDigit }}</span></div>
+                                    <div><span class="text-gray-400 block uppercase text-[8px] font-bold">Least Freq</span><span class="text-red-500 font-black">Digit {{ signal.leastDigit }}</span></div>
                                 </div>
                             </div>
 
@@ -224,8 +243,8 @@
                     <div class="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
                         <h3 class="text-xs font-black text-slate-900 uppercase tracking-wide">Automated Strategy Configuration</h3>
                         <div>
-                            <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">Asset Asset Class</label>
-                            <select class="w-full text-xs p-2 bg-gray-50 border border-gray-200 rounded-lg">
+                            <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">Select Asset</label>
+                            <select class="w-full text-xs p-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none">
                                 <option>Volatility 100 Index</option>
                                 <option>Volatility 75 Index</option>
                                 <option>Volatility 50 Index</option>
@@ -234,79 +253,15 @@
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">Virtual Stake ($)</label>
-                                <input type="number" value="10" class="w-full text-xs p-2 bg-gray-50 border border-gray-200 rounded-lg">
-                            </div>
-                            <div>
-                                <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">Martingale Multiplier</label>
-                                <input type="number" value="2" class="w-full text-xs p-2 bg-gray-50 border border-gray-200 rounded-lg">
-                            </div>
-                        </div>
-                        <button @click="triggerGlobalAction('Deploying structural automation matrix...')" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-wider rounded-lg mt-2">
-                            Start Automated Cycle
-                        </button>
-                    </div>
-                </div>
 
-                <div v-else-if="activeTab === 'Chart'" class="space-y-4">
-                    <div class="bg-white border border-gray-200 rounded-xl p-4">
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="text-xs font-black text-slate-900 uppercase">Live Market Graph Stream</h3>
-                            <span class="text-xs font-mono font-bold text-indigo-600">V75 [1s]</span>
-                        </div>
-                        
-                        <div class="h-40 bg-slate-950 rounded-xl p-2 relative flex items-end justify-between overflow-hidden border border-slate-800">
-                            <div class="absolute top-2 left-2 text-[10px] font-mono text-slate-500">Spot: {{ chartSpotPrice.toFixed(2) }}</div>
-                            <div v-for="(point, i) in chartPoints" :key="i" 
-                                 :style="{ height: point + '%' }" 
-                                 class="w-3 bg-gradient-to-t from-indigo-500/30 to-indigo-400 rounded-t-xs transition-all duration-300"></div>
-                        </div>
-                        
-                        <div class="flex justify-between items-center mt-3 text-[10px] text-gray-400 font-bold uppercase">
-                            <span>Interval: 1 Tick</span>
-                            <span class="text-emerald-500">Feed Synchronized</span>
-                        </div>
-                    </div>
-                </div>
 
-                <div v-else-if="activeTab === 'Analysis Tools'" class="space-y-4">
-                    <div class="bg-white border border-gray-200 rounded-xl p-4">
-                        <h3 class="text-xs font-black text-slate-900 uppercase tracking-wide mb-3">Digit Frequency Analyzer (Last 100 Ticks)</h3>
-                        
-                        <div class="grid grid-cols-5 gap-2">
-                            <div v-for="(freq, digit) in digitStats" :key="digit" class="bg-gray-50 border border-gray-200 rounded-lg p-2 text-center">
-                                <span class="block text-xs font-black text-slate-800">{{ digit }}</span>
-                                <span class="text-[10px] font-mono font-bold text-indigo-600">{{ freq }}%</span>
-                                <div class="w-full bg-gray-200 h-1 mt-1 rounded-full overflow-hidden">
-                                    <div class="bg-indigo-600 h-full" :style="{ width: freq * 4 + '%' }"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div v-else-if="activeTab === 'Bot Builder'" class="space-y-4">
-                    <div class="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
-                        <h3 class="text-xs font-black text-slate-900 uppercase">Visual Logic Strategy Blocks</h3>
-                        <p class="text-xs text-gray-400">Build custom automated structural scripts without editing core backend components.</p>
-                        
-                        <div class="space-y-2">
-                            <div class="bg-blue-50 border border-blue-200 p-2.5 rounded-lg text-xs font-mono text-blue-800 flex items-center justify-between">
-                                <span>[Block] When Match Digit Equals 5</span>
-                                <i class="fa-solid fa-puzzle-piece"></i>
-                            </div>
-                            <div class="bg-purple-50 border border-purple-200 p-2.5 rounded-lg text-xs font-mono text-purple-800 flex items-center justify-between">
-                                <span>[Action] Purchase Digit Over 4 Contract</span>
-                                <i class="fa-solid fa-code-fork"></i>
-                            </div>
-                        </div>
-
-                        <button @click="triggerGlobalAction('Compiling strategy blocks into dynamic script payload...')" class="w-full py-2 bg-slate-900 text-white text-xs font-bold uppercase rounded-lg">
+                                <button @click="triggerGlobalAction('Compiling strategy blocks into dynamic script payload...')" class="w-full py-2 bg-slate-900 text-white text-xs font-bold uppercase rounded-lg">
                             Compile Strategy Block
                         </button>
                     </div>
                 </div>
 
-                <div v-slot="activeTab" v-else class="space-y-4">
+                <div v-else class="space-y-4">
                     <div class="bg-white border border-gray-200 rounded-xl p-4 text-center space-y-3">
                         <i class="fa-solid fa-tower-broadcast text-3xl text-slate-300"></i>
                         <h3 class="text-xs font-black text-slate-900 uppercase">{{ activeTab }} Module</h3>
@@ -319,8 +274,7 @@
 
             </main>
 
-        
-                <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 fixed bottom-0 left-0 right-0 z-50 text-[11px] font-bold text-center py-3 flex items-center justify-center space-x-4">
+            <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 fixed bottom-0 left-0 right-0 z-50 text-[11px] font-bold text-center py-3 flex items-center justify-center space-x-4">
                 <span>&copy; 2026 TraderWin</span>
                 <button @click="openModal('terms')" class="hover:text-white underline">Terms of Service</button>
                 <button @click="openModal('risk')" class="hover:text-white underline">Risk Disclosure</button>
@@ -341,14 +295,10 @@
                         <div v-if="activeModal === 'terms'">
                             <p class="font-bold">1. Phase 1 Sandbox Parameters</p>
                             <p>TraderWin.com operates exclusively as an educational simulation platform in Phase 1. All performance algorithms, financial balances, stakes, tracking indices, payouts, and interface records are completely virtual.</p>
-                            <p class="font-bold mt-2">2. User Accounts & Assets</p>
-                            <p>No real currency can be deposited, stored, or processed on this server interface. The platform does not guarantee live connection parity or market execution equivalence when operating in real execution formats.</p>
                         </div>
                         <div v-if="activeModal === 'risk'">
                             <p class="font-bold text-red-600">High Risk Speculation Warning</p>
-                            <p>Trading Synthetic Indices (such as Volatility 50, 75, or 100 Index matrices) involves intense volatility risk driven by cryptographic mathematical structures. Movements are extreme and instant.</p>
-                            <p class="font-bold mt-2">No Liability Guarantee</p>
-                            <p>TraderWin.com and its developers accept no regulatory or civil liability for capital losses accrued inside live brokers via systems derivative of these calculations. Trade wisely.</p>
+                            <p>Trading Synthetic Indices involves intense volatility risk driven by cryptographic mathematical structures. Movements are extreme and instant.</p>
                         </div>
                     </div>
                     <div class="p-3 border-t border-gray-100 bg-gray-50 text-right">
@@ -366,42 +316,7 @@
 
         createApp({
             setup() {
-                // Put these inside your setup() configuration along with the other refs:
-const isAuthenticated = ref(false);
-const isRegistering = ref(true); // Defaults to Sign-Up first for new users
-const authForm = ref({ name: '', email: '', password: '' });
-
-const handleAuthSubmit = () => {
-    if (isRegistering.value) {
-        toastMessage.value = `Profile registered! Welcome ${authForm.value.name || 'Trader'}.`;
-    } else {
-        toastMessage.value = "License verified. Synchronizing workspaces...";
-    }
-    
-    // Simulate minor network sync delay before unlocking app
-    setTimeout(() => {
-        isAuthenticated.value = true;
-        toastMessage.value = "";
-    }, 1200);
-};
-
-const logout = () => {
-    isAuthenticated.value = false;
-    isRegistering.value = false; // Show Login screen on user sign out
-    authForm.value.password = ""; // Securely clear pass hook
-    toastMessage.value = "Terminal session ended safely.";
-    setTimeout(() => { toastMessage.value = ""; }, 2000);
-};
-
-// Make sure you append them to the final return statement block at the bottom:
-return {
-    isLoading, bootPercent, loadingStatusText,
-    isAuthenticated, isRegistering, authForm, handleAuthSubmit, logout, // Add these
-    activeTab, navigationTabs, signals, searchQuery, filteredSignals,
-    balance, toastMessage, activeModal, chartSpotPrice, chartPoints, digitStats,
-    executeVirtualTrade, triggerGlobalAction, openModal
-};
-                // UI Core System Reactive hooks
+                // UI Core Hooks & State Controllers
                 const isLoading = ref(true);
                 const bootPercent = ref(0);
                 const loadingStatusText = ref("Boot sequence loading...");
@@ -411,52 +326,52 @@ return {
                 const balance = ref(6790.80);
                 const searchQuery = ref("");
 
-                // Interactive Chart & Analysis Tool Hooks
+                // USER AUTHENTICATION STATES
+                const isAuthenticated = ref(false);
+                const isRegistering = ref(true);
+                const authForm = ref({ name: '', email: '', password: '' });
+
+                // Analytics Mock Data Streams
                 const chartSpotPrice = ref(2450.75);
                 const chartPoints = ref([40, 45, 38, 52, 60, 48, 55, 70, 62, 68, 74, 80]);
-                const digitStats = ref({ 0: 10, 1: 12, 2: 8, 3: 11, 4: 14, 5: 9, 6: 7, 7: 13, 8: 6, 9: 10 });
+                const digitStats = ref({ 0: 7, 1: 12, 2: 10, 3: 6, 4: 8, 5: 12, 6: 6, 7: 13, 8: 8, 9: 10 });
 
-                // Main Menu Configuration Matrix
                 const navigationTabs = [
                     "Speedbot", "Automated", "Chart", "Analysis Tools", 
                     "Dashboard", "Bot Builder", "Manual Trader", "Apex Bot", 
                     "Copy Trader", "Free Bots"
                 ];
 
-                // Core Specified Volatility Matrices
                 const signals = ref([
-                    { id: 101, asset: "Volatility 50 Index", prediction: "OVER 4", confidence: 49.2, isSlow: false },
-                    { id: 102, asset: "Volatility 75 Index", prediction: "EVEN", confidence: 51.4, isSlow: true },
-                    { id: 103, asset: "Volatility 100 Index", prediction: "OVER 4", confidence: 47.9, isSlow: false }
+                    { id: 101, asset: "Volatility 50 Index", prediction: "OVER 4", confidence: 49.2, isSlow: false, showDetails: false, statPercent: "58.3%", mostDigit: 5, leastDigit: 4 },
+                    { id: 102, asset: "Volatility 75 Index", prediction: "EVEN", confidence: 51.4, isSlow: true, showDetails: false, statPercent: "56.7%", mostDigit: 3, leastDigit: 7 },
+                    { id: 103, asset: "Volatility 100 Index", prediction: "OVER 4", confidence: 47.9, isSlow: false, showDetails: false, statPercent: "57.5%", mostDigit: 4, leastDigit: 7 }
                 ]);
 
-                // Filter search results dynamically
                 const filteredSignals = computed(() => {
                     return signals.value.filter(sig => 
                         sig.asset.toLowerCase().includes(searchQuery.value.toLowerCase())
                     );
                 });
 
-                // Initializer Mock Processing Sequence Routine
+                // Standard App Loader Sequence
                 const executeBootSequence = () => {
                     const logs = [
                         "Initializing TraderWin System Core...",
                         "Mapping Horizontal Navigation Marquees...",
-                        "Injecting Volatility 50/75/100 Streams...",
                         "Buffering Phase 1 Sandbox Environments...",
                         "System Terminal Secured!"
                     ];
 
                     const interval = setInterval(() => {
                         if (bootPercent.value < 100) {
-                            bootPercent.value += Math.floor(Math.random() * 5) + 2;
+                            bootPercent.value += Math.floor(Math.random() * 6) + 3;
                             if (bootPercent.value > 100) bootPercent.value = 100;
 
-                            if (bootPercent.value < 20) loadingStatusText.value = logs[0];
-                            else if (bootPercent.value < 45) loadingStatusText.value = logs[1];
-                            else if (bootPercent.value < 65) loadingStatusText.value = logs[2];
-                            else if (bootPercent.value < 90) loadingStatusText.value = logs[3];
-                            else loadingStatusText.value = logs[4];
+                            if (bootPercent.value < 25) loadingStatusText.value = logs[0];
+                            else if (bootPercent.value < 55) loadingStatusText.value = logs[1];
+                            else if (bootPercent.value < 85) loadingStatusText.value = logs[2];
+                            else loadingStatusText.value = logs[3];
                         } else {
                             clearInterval(interval);
                             setTimeout(() => {
@@ -464,54 +379,63 @@ return {
                                 startAlgorithmicFluctuations();
                             }, 500);
                         }
-                    }, 40);
+                    }, 45);
                 };
 
-                // Real-time Visual Value Mutation Shifts
+                // Real-time UI Number Generator Loop
                 const startAlgorithmicFluctuations = () => {
                     setInterval(() => {
-                        if (isLoading.value) return;
+                        if (isLoading.value || !isAuthenticated.value) return;
                         
-                        // Fluctuating Signal Confidence values
                         signals.value.forEach(sig => {
                             let step = (Math.random() * 1.2 - 0.6);
                             sig.confidence = parseFloat((sig.confidence + step).toFixed(1));
                         });
 
-                        // Mutating Chart Spots and Digit Statistics streams
                         chartSpotPrice.value += (Math.random() * 4 - 2);
                         chartPoints.value.shift();
                         chartPoints.value.push(Math.floor(Math.random() * 60) + 20);
 
-                        // Adjusting random analysis frequencies
                         const randomDigit = Math.floor(Math.random() * 10);
                         digitStats.value[randomDigit] = Math.floor(Math.random() * 8) + 6;
-
                     }, 1200);
                 };
 
-                // Virtual Execution Engine Simulation handler
+                // Authentication Form Submission Manager
+                const handleAuthSubmit = () => {
+                    toastMessage.value = isRegistering.value ? "Profile saved! Syncing secure environment..." : "Verifying terminal license credentials...";
+                    setTimeout(() => {
+                        isAuthenticated.value = true;
+                        toastMessage.value = "";
+                    }, 1200);
+                };
+
+                const logout = () => {
+                    isAuthenticated.value = false;
+                    isRegistering.value = false; // Redirect directly back to Login card
+                    toastMessage.value = "Session terminated safely.";
+                    setTimeout(() => { toastMessage.value = ""; }, 2000);
+                };
+
                 const executeVirtualTrade = (signal) => {
                     const mode = signal.isSlow ? 'SLOW' : 'FAST';
                     toastMessage.value = `[${mode} MODE] Synchronizing virtual ${signal.asset} contract parameters...`;
                     
                     setTimeout(() => {
-                        const simulatedStake = 15.00;
-                        balance.value -= simulatedStake;
+                        const stake = 15.00;
+                        balance.value -= stake;
                         toastMessage.value = `Executed! Virtual contract placed via ${signal.asset}. Payout pending...`;
                         
                         setTimeout(() => {
-                            const isWin = Math.random() > 0.45;
-                            if (isWin) {
-                                const profit = simulatedStake * 1.95;
-                                balance.value += profit;
-                                toastMessage.value = `✓ WIN! Payout generated successfully: +$${profit.toFixed(2)}`;
+                            if (Math.random() > 0.46) {
+                                const winAmt = stake * 1.95;
+                                balance.value += winAmt;
+                                toastMessage.value = `✓ SUCCESSFUL RECOVERY! +$${winAmt.toFixed(2)}`;
                             } else {
                                 toastMessage.value = `✕ LOSS! Virtual stake contract closed out index bounds.`;
                             }
                             setTimeout(() => { toastMessage.value = ""; }, 3000);
                         }, 2000);
-
                     }, 1500);
                 };
 
@@ -528,6 +452,7 @@ return {
 
                 return {
                     isLoading, bootPercent, loadingStatusText,
+                    isAuthenticated, isRegistering, authForm, handleAuthSubmit, logout,
                     activeTab, navigationTabs, signals, searchQuery, filteredSignals,
                     balance, toastMessage, activeModal, chartSpotPrice, chartPoints, digitStats,
                     executeVirtualTrade, triggerGlobalAction, openModal
@@ -536,4 +461,4 @@ return {
         }).mount('#app');
     </script>
 </body>
-    </html>
+                            </html>
