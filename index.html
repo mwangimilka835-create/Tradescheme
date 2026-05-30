@@ -435,18 +435,56 @@
                 }, 1200);
             };
 
-            // Authentication Handling Form
+
+    // Hifadhi ya siri ya akaunti (Local Workspace Memory)
+            const registeredUser = ref({ name: '', email: '', password: '' });
+
+            // Authentication Handling Form (Sasa ina Logic Kamili ya Uhakiki)
             const handleAuthSubmit = () => {
-                toastMessage.value = isRegistering.value ? "Profile saved! Syncing secure environment..." : "Verifying terminal license credentials...";
-                setTimeout(() => {
-                    isAuthenticated.value = true;
-                    toastMessage.value = "";
-                }, 1200);
+                if (isRegistering.value) {
+                    // 1. Logic ya KUSAJILI (Register)
+                    registeredUser.value = { 
+                        name: authForm.value.name, 
+                        email: authForm.value.email, 
+                        password: authForm.value.password 
+                    };
+                    
+                    toastMessage.value = "Profile saved successfully! Switching to Login terminal...";
+                    
+                    // Baada ya sekunde 1.5, mhamishe aende kwenye screen ya Login
+                    setTimeout(() => {
+                        isRegistering.value = false;
+                        authForm.value.password = ""; // Safisha password kwa usalama
+                        toastMessage.value = "";
+                    }, 1500);
+
+                } else {
+                    // 2. Logic ya KUINGIA (Login)
+                    if (authForm.value.email === registeredUser.value.email && 
+                        authForm.value.password === registeredUser.value.password &&
+                        registeredUser.value.email !== "") {
+                        
+                        toastMessage.value = "Verifying terminal license credentials... Welcome back!";
+                        setTimeout(() => {
+                            isAuthenticated.value = true;
+                            toastMessage.value = "";
+                        }, 1200);
+                        
+                    } else {
+                        // Details zikikataa au asiposajili, mzuie kabisa!
+                        toastMessage.value = "✕ AUTHENTICATION FAILED: Invalid terminal token or credentials!";
+                        setTimeout(() => {
+                            toastMessage.value = "";
+                        }, 3000);
+                    }
+                }
             };
 
             const logout = () => {
                 isAuthenticated.value = false;
-                isRegistering.value = false; 
+                isRegistering.value = false; // Akilogout, mpeleke moja kwa moja Login screen
+                authForm.value.email = "";
+                authForm.value.password = "";
                 toastMessage.value = "Session terminated safely.";
                 setTimeout(() => { toastMessage.value = ""; }, 2000);
             };
@@ -496,5 +534,5 @@
     }).mount('#app');
 </script>
 </body>
-    </html>
- 
+</html>
+            
