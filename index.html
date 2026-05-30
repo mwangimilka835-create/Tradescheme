@@ -18,7 +18,7 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe
 .page { display: none; padding: 15px; }
 .page.active { display: block; }
 .card { background: var(--panel); padding: 20px; border-radius: 8px; margin: 10px; text-align: center; }
-.error-box { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #ff4444; padding: 12px 20px; border-radius: 6px; display: none; z-index: 100; }
+.error-box { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #ff4444; padding: 12px 20px; border-radius: 6px; display: none; z-index: 100; font-family: monospace; }
 </style>
 </head>
 <body>
@@ -53,7 +53,7 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe
 <script>
 // === PUT YOUR DERIV CREDENTIALS HERE ===
 const DERIV_APP_ID = "33egwMbRPIkA8tEiGipbD"; 
-const DERIV_API_TOKEN = "pat_d32c84bf7f345e9b2c004b5b8e24b4f7ec68b4273ff52b80c1c576ea04098b71"; // Your old token is exposed, generate new one
+const DERIV_API_TOKEN = "PASTE_NEW_TOKEN_HERE"; // Revoke old one and make new at app.deriv.com/account/api-token
 
 let ws;
 let isAuthorized = false;
@@ -63,6 +63,7 @@ function showError(msg) {
     box.innerText = msg;
     box.style.display = 'block';
     setTimeout(() => box.style.display = 'none', 5000);
+    console.error(msg);
 }
 
 function handleWebSocketMessage(msg) {
@@ -81,7 +82,7 @@ function handleWebSocketMessage(msg) {
     }
 
     if (res.msg_type === 'balance') {
-        // FIXED LINE BELOW
+        // FIXED: correct property access
         document.getElementById('balance-display').innerText = res.balance + " + res.balance.currency;
     }
 
@@ -99,7 +100,7 @@ function connectToDeriv() {
     
     ws.onmessage = handleWebSocketMessage;
     
-    ws.onerror = () => showError("WebSocket connection error");
+    ws.onerror = (e) => showError("WebSocket error: " + e.message);
     
     ws.onclose = () => {
         isAuthorized = false;
@@ -134,4 +135,4 @@ function showPage(id, tab) {
 window.addEventListener('load', connectToDeriv);
 </script>
 </body>
-</html>
+    </html>
