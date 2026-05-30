@@ -3,75 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trading Dashboard</title>
+    <title>TraderScheme Workspace</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #0b1426; color: #ffffff; }
-        #app { max-width: 600px; margin: auto; background: #1a2942; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        h1 { text-align: center; color: #62a3ff; margin-bottom: 20px; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #334e68; background: #0b1426; color: white; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; cursor: pointer; background: #62a3ff; border: none; border-radius: 6px; color: white; font-weight: bold; font-size: 16px; }
-        button:hover { background: #4a8ad9; }
-        #status { margin-top: 15px; text-align: center; color: #8899a6; }
-        #balance { margin-top: 10px; font-size: 1.2em; text-align: center; color: #2ecc71; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #0b1426; color: white; height: 100vh; overflow: hidden; }
+
+        /* Loading Screen */
+        #boot-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b1426; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
+        .brain-icon { font-size: 80px; margin-bottom: 20px; }
+        #progress-bar { width: 80%; height: 8px; background: #1a2942; border-radius: 4px; margin-top: 20px; overflow: hidden; }
+        #progress { width: 0%; height: 100%; background: #62a3ff; transition: width 0.1s; }
+
+        /* Main Dashboard */
+        .container { padding: 20px; display: none; }
+        .card { background: #1a2942; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button { padding: 15px; border: none; border-radius: 8px; background: #62a3ff; color: white; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div id="app">
-        <h1>Deriv Trading Dashboard</h1>
-        <input type="password" id="apiToken" placeholder="Enter your Deriv API Token">
-        <button onclick="connectToDeriv()">Connect to Deriv</button>
-        <div id="status">Status: Disconnected</div>
-        <div id="balance">Balance: --</div>
+
+    <div id="boot-screen">
+        <div class="brain-icon">🧠</div>
+        <h3>TraderScheme Trading Workspace</h3>
+        <p>Initializing D-Bot...</p>
+        <div id="progress-bar"><div id="progress"></div></div>
+        <p style="margin-top:10px">Boot sequence <span id="percent">0</span>%</p>
+    </div>
+
+    <div class="container" id="dashboard">
+        <h1>Dashboard</h1>
+        <div class="card">
+            <p>Welcome back, Trader.</p>
+            <div class="btn-group">
+                <button>LOAD BOT</button>
+                <button>MANUAL TRADING</button>
+                <button>SPEED BOT</button>
+                <button>ANALYSIS TOOL</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        let connection;
-
-        function connectToDeriv() {
-            const token = document.getElementById('apiToken').value;
-            const appId = '1089'; // Use your own App ID from Deriv
-            const url = `wss://ws.derivws.com/websockets/v3?app_id=${appId}`;
-
-            if (!token) {
-                alert("Please enter your API token.");
-                return;
+        // Boot Sequence Simulation
+        let p = 0;
+        const progress = document.getElementById('progress');
+        const percent = document.getElementById('percent');
+        const interval = setInterval(() => {
+            p += 2;
+            progress.style.width = p + "%";
+            percent.innerText = p;
+            if (p >= 100) {
+                clearInterval(interval);
+                document.getElementById('boot-screen').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
             }
-
-            connection = new WebSocket(url);
-
-            connection.onopen = () => {
-                document.getElementById('status').innerText = "Status: Connecting...";
-                connection.send(JSON.stringify({ authorize: token }));
-            };
-
-            connection.onmessage = (msg) => {
-                const response = JSON.parse(msg.data);
-                
-                if (response.error) {
-                    alert("Error: " + response.error.message);
-                    document.getElementById('status').innerText = "Status: Error";
-                    return;
-                }
-
-                if (response.authorize) {
-                    document.getElementById('status').innerText = "Status: Connected";
-                    connection.send(JSON.stringify({ balance: 1 }));
-                }
-                
-                if (response.balance) {
-                    document.getElementById('balance').innerText = 
-                        `Balance: ${response.balance.balance} ${response.balance.currency}`;
-                }
-            };
-
-            connection.onerror = (err) => {
-                document.getElementById('status').innerText = "Status: Connection Failed";
-            };
-            
-            connection.onclose = () => {
-                document.getElementById('status').innerText = "Status: Disconnected";
-            };
-        }
+        }, 50);
     </script>
 </body>
 </html>
