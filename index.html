@@ -3,71 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TraderScheme Terminal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <title>Trading Dashboard</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #0b1426; color: #ffffff; }
+        #app { max-width: 600px; margin: auto; background: #1a2942; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        h1 { text-align: center; color: #62a3ff; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #334e68; background: #0b1426; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; cursor: pointer; background: #62a3ff; border: none; border-radius: 6px; color: white; font-weight: bold; font-size: 16px; }
+        button:hover { background: #4a8ad9; }
+        #status { margin-top: 15px; text-align: center; color: #8899a6; }
+        #balance { margin-top: 10px; font-size: 1.2em; text-align: center; color: #2ecc71; }
+    </style>
 </head>
-<body class="bg-[#020617] text-slate-200">
-<div id="app" class="max-w-md mx-auto min-h-screen border-x border-slate-800">
-    <header class="p-4 flex justify-between items-center bg-[#0f172a] border-b border-slate-800">
-        <h1 class="font-bold text-lg">TraderScheme</h1>
-        <div class="bg-slate-900 px-2 py-1 rounded text-xs font-bold text-emerald-400">
-            {{ balance }} USD <span class="text-slate-500">Demo</span>
-        </div>
-    </header>
+<body>
+    <div id="app">
+        <h1>Deriv Trading Dashboard</h1>
+        <input type="password" id="apiToken" placeholder="Enter your Deriv API Token">
+        <button onclick="connectToDeriv()">Connect to Deriv</button>
+        <div id="status">Status: Disconnected</div>
+        <div id="balance">Balance: --</div>
+    </div>
 
-    <nav class="flex overflow-x-auto p-2 gap-2 bg-[#0f172a] text-xs font-bold">
-        <button @click="activeTab = 'Dashboard'" :class="{'text-white border-b-2 border-amber-500': activeTab === 'Dashboard'}">Dashboard</button>
-        <button @click="activeTab = 'BotBuilder'" :class="{'text-white border-b-2 border-amber-500': activeTab === 'BotBuilder'}">Bot Builder</button>
-        <button @click="activeTab = 'Manual'" :class="{'text-white border-b-2 border-amber-500': activeTab === 'Manual'}">Manual Trader</button>
-    </nav>
+    <script>
+        let connection;
 
-    <main class="p-4">
-        <div v-if="activeTab === 'Dashboard'">
-            <div class="grid grid-cols-2 gap-4">
-                <div class="bg-[#0f172a] p-4 rounded-xl border border-slate-800 text-center">Load Bot</div>
-                <div class="bg-[#0f172a] p-4 rounded-xl border border-slate-800 text-center">Analysis Tool</div>
-            </div>
-            <div class="mt-6 bg-[#0f172a] p-4 rounded-xl border border-slate-800">
-                <h2 class="text-sm font-bold mb-4">Live Trading Signals</h2>
-                <div v-for="signal in signals" :key="signal.id" class="p-3 bg-slate-900 rounded mb-2">
-                    <p class="font-bold text-amber-500">{{ signal.asset }}</p>
-                    <p class="text-xs">Confidence: {{ signal.confidence }}%</p>
-                </div>
-            </div>
-        </div>
+        function connectToDeriv() {
+            const token = document.getElementById('apiToken').value;
+            const appId = '1089'; // Use your own App ID from Deriv
+            const url = `wss://ws.derivws.com/websockets/v3?app_id=${appId}`;
 
-        <div v-else class="text-center mt-20 text-slate-500">
-            {{ activeTab }} Module Loading...
-        </div>
-    </main>
-</div>
+            if (!token) {
+                alert("Please enter your API token.");
+                return;
+            }
 
-<script>
-    const { createApp, ref, onMounted } = Vue;
-    createApp({
-        setup() {
-            const activeTab = ref('Dashboard');
-            const balance = ref('6,790.80');
-            const signals = ref([
-                { id: 1, asset: 'Volatility 100 (1s) Index', confidence: 56.7 },
-                { id: 2, asset: 'Volatility 50 Index', confidence: 57.5 }
-            ]);
+            connection = new WebSocket(url);
 
-            // Deriv WebSocket Connection Placeholder
-            const connectDeriv = () => {
-                const ws = new WebSocket('wss://ws.binaryws.com/websockets/v3?app_id=1089');
-                ws.onopen = () => console.log("Handshake established");
-                ws.onmessage = (e) => {
-                    const data = JSON.parse(e.data);
-                    // Handle API ticks/signals here
-                };
+            connection.onopen = () => {
+                document.getElementById('status').innerText = "Status: Connecting...";
+                connection.send(JSON.stringify({ authorize: token }));
             };
 
-            onMounted(connectDeriv);
-            return { activeTab, balance, signals };
+            connection.onmessage = (msg) => {
+                const response = JSON.parse(msg.data);
+                
+                if (response.error) {
+                    alert("Error: " + response.error.message);
+                    document.getElementById('status').innerText = "Status: Error";
+                    return;
+                }
+
+                if (response.authorize) {
+                    document.getElementById('status').innerText = "Status: Connected";
+                    connection.send(JSON.stringify({ balance: 1 }));
+                }
+                
+                if (response.balance) {
+                    document.getElementById('balance').innerText = 
+                        `Balance: ${response.balance.balance} ${response.balance.currency}`;
+                }
+            };
+
+            connection.onerror = (err) => {
+                document.getElementById('status').innerText = "Status: Connection Failed";
+            };
+            
+            connection.onclose = () => {
+                document.getElementById('status').innerText = "Status: Disconnected";
+            };
         }
-    }).mount('#app');
-</script>
+    </script>
 </body>
 </html>
