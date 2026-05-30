@@ -177,144 +177,174 @@
         </div>
     </div>
 
+
     <script>
-        const { createApp, ref, computed, onMounted } = Vue;
+    const { createApp, ref, computed, onMounted } = Vue;
 
-        createApp({
-            setup() {
-                const isLoading = ref(true);
-                const bootPercent = ref(0);
-                const loadingStatusText = ref("Initializing TraderWin Terminal...");
-                const isAuthenticated = ref(false);
-                const isRegistering = ref(false);
-                const activeTab = ref("Speedbot");
+    createApp({
+        setup() {
+            // Screen & Terminal Navigation states
+            const isLoading = ref(true);
+            const bootPercent = ref(0);
+            const loadingStatusText = ref("Initializing TraderWin Terminal...");
+            const isAuthenticated = ref(false);
+            const isRegistering = ref(false);
+            const activeTab = ref("Speedbot");
 
-                const balance = ref(0.00);
-                const toastMessage = ref("");
-                const activeModal = ref("TERMS"); 
-                const searchQuery = ref("");
+            // Base Interface Controls
+            const balance = ref(0.00);
+            const toastMessage = ref("");
+            const activeModal = ref("TERMS"); 
+            const searchQuery = ref("");
 
-                const chartSpotPrice = ref(2450.50);
-                const chartPoints = ref([45, 32, 56, 41, 65, 48, 39, 52, 61, 44, 50, 38, 55, 42, 59]);
-                const digitStats = ref({ 0: 8, 1: 11, 2: 9, 3: 7, 4: 10, 5: 12, 6: 6, 7: 14, 8: 8, 9: 10 });
+            // Chart & Fluctuation Engine States
+            const chartSpotPrice = ref(2450.50);
+            const chartPoints = ref([45, 32, 56, 41, 65, 48, 39, 52, 61, 44, 50, 38, 55, 42, 59]);
+            const digitStats = ref({ 0: 8, 1: 11, 2: 9, 3: 7, 4: 10, 5: 12, 6: 6, 7: 14, 8: 8, 9: 10 });
 
-                const registeredUser = ref({ name: '', email: '', password: '' });
-                
-                // FIXED TOKEN STRING FOR DIRECT WS AUTHORIZATION
-                const derivToken = ref("pat_ed586a9ab1ede610dca73cad956da3af12e8027bf2cf3e5a72797dcd9f9e27c1");  
-                const derivAppId = ref("1089"); 
-                let derivSocket = null;      
-                let simulationInterval = null;
+            // Hifadhi ya siri ya akaunti (Local Workspace Memory)
+            const registeredUser = ref({ name: '', email: '', password: '' });
+            
+            // TOKEN YA MAJARIBIO (Kama ni invalid, mfumo utaswitch kwenda simulation badala ya kukwama)
+            const derivToken = ref("pat_ed586a9ab1ede610dca73cad956da3af12e8027bf2cf3e5a72797dcd9f9e27c1");  
+            const derivAppId = ref("1089"); 
+            let derivSocket = null;      
+            let simulationInterval = null;
 
-                const navigationTabs = [
-                    "Speedbot", "Automated", "Chart", "Analysis Tools", 
-                    "Dashboard", "Bot Builder", "Manual Trader", "Apex Bot", 
-                    "Copy Trader", "Free Bots"
+            // Navigation Tab Options
+            const navigationTabs = [
+                "Speedbot", "Automated", "Chart", "Analysis Tools", 
+                "Dashboard", "Bot Builder", "Manual Trader", "Apex Bot", 
+                "Copy Trader", "Free Bots"
+            ];
+
+            // Signals Data Array
+            const signals = ref([
+                { id: 101, asset: "Volatility 50 Index", prediction: "OVER 4", confidence: 49.2, isSlow: false, showDetails: false, statPercent: "58.3%", mostDigit: 5, leastDigit: 4 },
+                { id: 102, asset: "Volatility 75 Index", prediction: "EVEN", confidence: 51.4, isSlow: true, showDetails: false, statPercent: "56.7%", mostDigit: 3, leastDigit: 7 },
+                { id: 103, asset: "Volatility 100 Index", prediction: "OVER 4", confidence: 47.9, isSlow: false, showDetails: false, statPercent: "57.5%", mostDigit: 4, leastDigit: 7 }
+            ]);
+
+            const filteredSignals = computed(() => {
+                return signals.value.filter(sig => 
+                    sig.asset.toLowerCase().includes(searchQuery.value.toLowerCase())
+                );
+            });
+
+            // Boot Sequence Tracker (0 to 100%)
+            const executeBootSequence = () => {
+                const logs = [
+                    "Initializing TraderWin System Core...",
+                    "Mapping Horizontal Navigation Marquees...",
+                    "Buffering Phase 1 Sandbox Environments...",
+                    "System Terminal Secured!"
                 ];
 
-                const signals = ref([
-                    { id: 101, asset: "Volatility 50 Index", prediction: "OVER 4", confidence: 49.2, isSlow: false, showDetails: false, statPercent: "58.3%", mostDigit: 5, leastDigit: 4 },
-                    { id: 102, asset: "Volatility 75 Index", prediction: "EVEN", confidence: 51.4, isSlow: true, showDetails: false, statPercent: "56.7%", mostDigit: 3, leastDigit: 7 },
-                    { id: 103, asset: "Volatility 100 Index", prediction: "OVER 4", confidence: 47.9, isSlow: false, showDetails: false, statPercent: "57.5%", mostDigit: 4, leastDigit: 7 }
-                ]);
+                const interval = setInterval(() => {
+                    if (bootPercent.value < 100) {
+                        bootPercent.value += Math.floor(Math.random() * 6) + 3;
+                        if (bootPercent.value > 100) bootPercent.value = 100;
 
-                const filteredSignals = computed(() => {
-                    return signals.value.filter(sig => 
-                        sig.asset.toLowerCase().includes(searchQuery.value.toLowerCase())
-                    );
-                });
+                        if (bootPercent.value < 25) loadingStatusText.value = logs[0];
+                        else if (bootPercent.value < 55) loadingStatusText.value = logs[1];
+                        else if (bootPercent.value < 85) loadingStatusText.value = logs[2];
+                        else loadingStatusText.value = logs[3];
+                    } else {
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            isLoading.value = false;
+                        }, 500);
+                    }
+                }, 45);
+            };
 
-                const executeBootSequence = () => {
-                    const logs = [
-                        "Initializing TraderWin System Core...",
-                        "Mapping Horizontal Navigation Marquees...",
-                        "Buffering Phase 1 Sandbox Environments...",
-                        "System Terminal Secured!"
-                    ];
+            // START OFFLINE SIMULATION ENGINE (Inatumika kama Token ikifeli)
+            const startOfflineSimulation = () => {
+                if (simulationInterval) clearInterval(simulationInterval);
+                balance.value = 10000.00; // Mpe demo virtual balance
+                
+                simulationInterval = setInterval(() => {
+                    chartSpotPrice.value = parseFloat((chartSpotPrice.value + (Math.random() * 2 - 1)).toFixed(2));
+                    chartPoints.value.shift();
+                    chartPoints.value.push(Math.floor(Math.random() * 60) + 20);
+                    
+                    const randomDigit = Math.floor(Math.random() * 10);
+                    digitStats.value[randomDigit] = (digitStats.value[randomDigit] || 0) + 1;
+                    if (digitStats.value[randomDigit] > 30) {
+                        digitStats.value = { 0: 8, 1: 11, 2: 9, 3: 7, 4: 10, 5: 12, 6: 6, 7: 14, 8: 8, 9: 10 };
+                    }
+                    
+                    signals.value.forEach(sig => {
+                        let step = (Math.random() * 0.8 - 0.4);
+                        sig.confidence = parseFloat((sig.confidence + step).toFixed(1));
+                    });
+                }, 1000);
+            };
 
-                    const interval = setInterval(() => {
-                        if (bootPercent.value < 100) {
-                            bootPercent.value += Math.floor(Math.random() * 6) + 3;
-                            if (bootPercent.value > 100) bootPercent.value = 100;
+            // LIVE DERIV WEBSOCKET HANDSHAKE CORE
+            const connectToDerivAPI = (token, appId) => {
+                toastMessage.value = "Establishing handshake with Deriv WebSocket server...";
+                
+                derivSocket = new WebSocket("wss://ws.derivws.com/websockets/v3?app_id=" + appId);
 
-                            if (bootPercent.value < 25) loadingStatusText.value = logs[0];
-                            else if (bootPercent.value < 55) loadingStatusText.value = logs[1];
-                            else if (bootPercent.value < 85) loadingStatusText.value = logs[2];
-                            else loadingStatusText.value = logs[3];
-                        } else {
-                            clearInterval(interval);
-                            setTimeout(() => {
-                                isLoading.value = false;
-                            }, 500);
-                        }
-                    }, 45);
+                derivSocket.onopen = () => {
+                    toastMessage.value = "Connected! Authorizing trading terminal token...";
+                    derivSocket.send(JSON.stringify({ authorize: token }));
                 };
 
-                const startOfflineSimulation = () => {
-                    if (simulationInterval) clearInterval(simulationInterval);
-                    balance.value = 10000.00; 
-                    
-                    simulationInterval = setInterval(() => {
-                        chartSpotPrice.value = parseFloat((chartSpotPrice.value + (Math.random() * 2 - 1)).toFixed(2));
-                        chartPoints.value.shift();
-                        chartPoints.value.push(Math.floor(Math.random() * 60) + 20);
+                derivSocket.onmessage = (msg) => {
+                    const response = JSON.parse(msg.data);
+
+                    if (response.msg_type === 'authorize') {
+                        if (response.error) {
+                            // SULUHISHO: Token ikiwa mbovu, usikwame! Badili kwenda Simulation Mode
+                            toastMessage.value = "✕ DERIV ERROR: Invalid Token. Launching Sandbox Mode...";
+                            if (derivSocket) derivSocket.close();
+                            
+                            setTimeout(() => {
+                                startOfflineSimulation();
+                                toastMessage.value = "✓ Sandbox Engine Activated Successfully.";
+                            }, 1500);
+                            return;
+                        }
                         
+                        if (response.authorize.balance) {
+                            balance.value = parseFloat(response.authorize.balance);
+                        }
+                        
+                        toastMessage.value = "✓ Authorized! Subscribing to Volatility 75 Live Ticks...";
+                        derivSocket.send(JSON.stringify({ ticks: 'R_75' }));
+                    }
+
+                    if (response.msg_type === 'tick') {
+                        if (response.error) return;
+
+                        const tick = response.tick;
+                        chartSpotPrice.value = tick.quote;
+
+                        chartPoints.value.shift();
+                        const simulatedHeight = Math.floor((tick.quote % 10) * 10);
+                        chartPoints.value.push(simulatedHeight > 0 ? simulatedHeight : 40);
+
+                        const quoteString = tick.quote.toString();
+                        const lastDigit = parseInt(quoteString.charAt(quoteString.length - 1));
+                        
+                        if (!isNaN(lastDigit) && lastDigit >= 0 && lastDigit <= 9) {
+                            digitStats.value[lastDigit] = (digitStats.value[lastDigit] || 0) + 1;
+                        }
+
                         signals.value.forEach(sig => {
                             let step = (Math.random() * 0.8 - 0.4);
                             sig.confidence = parseFloat((sig.confidence + step).toFixed(1));
                         });
-                    }, 1000);
+                    }
                 };
 
-                // REWRITTEN WEBSOCKET ENGINE WITH DIRECT TOKEN CALL
-                const connectToDerivAPI = () => {
-                    toastMessage.value = "Establishing handshake with Deriv WebSocket server...";
-                    
-                    const socketUrl = "wss://ws.derivws.com/websockets/v3?app_id=" + derivAppId.value;
-                    derivSocket = new WebSocket(socketUrl);
-
-                    derivSocket.onopen = () => {
-                        toastMessage.value = "Connected! Authorizing trading terminal token...";
-                        // Force sending exact token string safely
-                        derivSocket.send(JSON.stringify({ authorize: "pat_ed586a9ab1ede610dca73cad956da3af12e8027bf2cf3e5a72797dcd9f9e27c1" }));
-                    };
-
-                    derivSocket.onmessage = (msg) => {
-                        const response = JSON.parse(msg.data);
-
-                        if (response.error) {
-                            toastMessage.value = "✕ DERIV API ERROR: " + response.error.message;
-                            setTimeout(() => {
-                                startOfflineSimulation();
-                                toastMessage.value = "✓ Sandbox Engine Mode Enabled.";
-                            }, 2000);
-                            return;
-                        }
-
-                        if (response.msg_type === 'authorize') {
-                            if (response.authorize && response.authorize.balance) {
-                                balance.value = parseFloat(response.authorize.balance);
-                            }
-                            toastMessage.value = "✓ Authorized! Subscribing to Volatility 75 Live Ticks...";
-                            derivSocket.send(JSON.stringify({ ticks: 'R_75' }));
-                        }
-
-                        if (response.msg_type === 'tick') {
-                            const tick = response.tick;
-                            if (!tick) return;
-                            
-                            chartSpotPrice.value = tick.quote;
-                            chartPoints.value.shift();
-                            const simulatedHeight = Math.floor((tick.quote % 10) * 10);
-                            chartPoints.value.push(simulatedHeight > 0 ? simulatedHeight : 40);
-
-                            signals.value.forEach(sig => {
-                                let step = (Math.random() * 0.8 - 0.4);
-                                sig.confidence = parseFloat((sig.confidence + step).toFixed(1));
-                            });
-                        }
-                   // Authentication Handling Form
-            const authForm = ref({ name: '', email: '', password: '' });
+                derivSocket.onerror = (err) => {
+                    toastMessage.value = "✕ Connection error. Falling back to Sandbox...";
+                    startOfflineSimulation();
+                };
+            };
 
             const handleAuthSubmit = () => {
                 if (isRegistering.value) {
@@ -331,7 +361,8 @@
                     }, 1500);
                 } else {
                     isAuthenticated.value = true;
-                    connectToDerivAPI();
+                    // Jaribu kuunganisha Deriv API
+                    connectToDerivAPI(derivToken.value, derivAppId.value);
                 }
             };
 
@@ -374,7 +405,9 @@
             };
 
             const openModal = (type) => { activeModal.value = type; };
+            const authForm = ref({ name: '', email: '', password: '' });
 
+            // LIFE CYCLE NA USALAMA WA LOCKOUT
             onMounted(() => {
                 const deadline = new Date("2026-06-02"); 
                 const today = new Date();
@@ -402,4 +435,6 @@
     }).mount('#app');
 </script>
 </body>
-</html>
+    </html>
+
+                            
