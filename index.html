@@ -84,7 +84,8 @@ function handleWebSocketMessage(msg) {
     if (res.msg_type === 'balance') {
         // FIXED: correct property access
         document.getElementById('balance-display').innerText = res.balance + " + res.balance.currency;
-    }
+                                                   // ^ missing closing quote and +
+        
 
     if (res.msg_type === 'tick') {
         document.getElementById('price-display').innerText = res.tick.quote;
