@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -14,67 +14,81 @@
         #progress-bar { width: 300px; height: 6px; background: var(--panel); border-radius: 3px; margin: 20px 0; overflow: hidden; }
         #progress { width: 0%; height: 100%; background: var(--accent); transition: width 0.1s; }
 
-        /* Main UI */
-        #main-ui { display: none; }
+        /* Navigation */
+        #main-ui { display: none; height: 100vh; display: flex; flex-direction: column; }
         .nav-bar { background: var(--panel); display: flex; justify-content: space-between; padding: 15px; align-items: center; }
         .tabs { display: flex; background: var(--bg); margin: 10px; border-radius: 8px; overflow: hidden; }
         .tab { flex: 1; padding: 12px; text-align: center; background: var(--panel); cursor: pointer; font-weight: bold; }
         .tab.active { background: var(--accent); }
+        
+        /* Pages */
+        .page { display: none; padding: 15px; }
+        .page.active { display: block; }
+        
+        /* Dashboard Grid */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
-        .card { background: var(--panel); padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; }
-        .signal-card { background: var(--panel); margin: 15px; padding: 15px; border-radius: 8px; border-left: 4px solid var(--accent); }
+        .card { background: var(--panel); padding: 30px; border-radius: 8px; text-align: center; cursor: pointer; font-weight: bold; }
+        .card:hover { background: var(--accent); }
     </style>
 </head>
 <body>
 
     <div id="boot-screen">
-        <img src="IMG-20260529-WA0025.jpg" class="brain-logo" alt="TraderWin Brain">
-        <div id="status-text">Initializing D-Bot...</div>
+        <img src="IMG-20260529-WA0025.jpg" class="brain-logo" alt="TraderWin">
         <div id="progress-bar"><div id="progress"></div></div>
-        <div id="percent">Boot sequence 0%</div>
     </div>
 
     <div id="main-ui">
         <div class="nav-bar">
-            <div>☰ TraderWin Workspace</div>
-            <div>6,790.80 USD <button>Demo</button></div>
+            <div>☰ TraderWin</div>
+            <div>6,790.80 USD</div>
         </div>
+
         <div class="tabs">
-            <div class="tab active">Dashboard</div>
-            <div class="tab">Bot Builder</div>
-            <div class="tab">Manual Trader</div>
+            <div class="tab active" onclick="showPage('dashboard', this)">Dashboard</div>
+            <div class="tab" onclick="showPage('bot-builder', this)">Bot Builder</div>
+            <div class="tab" onclick="showPage('manual', this)">Manual Trader</div>
         </div>
-        <div class="grid">
-            <div class="card">📁 LOAD BOT</div>
-            <div class="card">📊 ANALYSIS</div>
-            <div class="card">🚀 SPEED BOT</div>
-            <div class="card">💻 MANUAL TRADING</div>
+
+        <div id="dashboard" class="page active">
+            <div class="grid">
+                <div class="card" onclick="showPage('bot-builder', null)">📁 LOAD BOT</div>
+                <div class="card" onclick="showPage('analysis', null)">📊 ANALYSIS</div>
+                <div class="card" onclick="showPage('speed-bot', null)">🚀 SPEED BOT</div>
+                <div class="card" onclick="showPage('manual', null)">💻 MANUAL</div>
+            </div>
         </div>
-        <div style="padding: 15px; font-weight: bold;">LIVE TRADING SIGNALS</div>
-        <div class="signal-card">
-            <div>#1 Volatility 100 (1s) Index</div>
-            <div style="font-size: 20px; color: var(--accent);">ODD 56.7%</div>
-            <button style="width: 100%; margin-top: 10px; background: #e74c3c; border: none; padding: 10px; color: white;">Load Odd Signal</button>
-        </div>
+
+        <div id="bot-builder" class="page"><h2>Bot Builder Settings</h2></div>
+        <div id="analysis" class="page"><h2>Market Analysis Tool</h2></div>
+        <div id="speed-bot" class="page"><h2>Speed Bot Active</h2></div>
+        <div id="manual" class="page"><h2>Manual Trading Interface</h2></div>
     </div>
 
     <script>
+        // Progress Bar
         let p = 0;
         const progress = document.getElementById('progress');
-        const percent = document.getElementById('percent');
-        const status = document.getElementById('status-text');
-        
         const interval = setInterval(() => {
             p += 2;
             progress.style.width = p + "%";
-            percent.innerText = "Boot sequence " + p + "%";
-            if (p == 50) status.innerText = "Initializing your account...";
             if (p >= 100) {
                 clearInterval(interval);
                 document.getElementById('boot-screen').style.display = 'none';
                 document.getElementById('main-ui').style.display = 'block';
             }
         }, 50);
+
+        // Page Switcher
+        function showPage(pageId, tabElement) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            
+            if(tabElement) {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tabElement.classList.add('active');
+            }
+        }
     </script>
 </body>
-                </html>
+                                                                           </html>
