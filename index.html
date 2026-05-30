@@ -3,438 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TraderWin Terminal</title>
+    <title>TraderScheme Terminal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body { background-color: #020617; font-family: system-ui, -apple-system, sans-serif; }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
-    </style>
 </head>
-<body class="text-slate-200 antialiased selection:bg-amber-500 selection:text-slate-900">
-
-    <div id="app" v-cloak>
-        <div v-if="isLoading" class="fixed inset-0 bg-[#020617] z-50 flex flex-col items-center justify-center p-6">
-            <div class="relative w-24 h-24 mb-6">
-                <div class="absolute inset-0 rounded-full border-4 border-slate-800"></div>
-                <div class="absolute inset-0 rounded-full border-4 border-t-amber-500 animate-spin"></div>
-                <div class="absolute inset-0 flex items-center justify-center font-bold text-sm text-amber-500">
-                    {{ bootPercent }}%
-                </div>
-            </div>
-            <p class="text-slate-400 text-xs font-mono tracking-wider animate-pulse">{{ loadingStatusText }}</p>
+<body class="bg-[#020617] text-slate-200">
+<div id="app" class="max-w-md mx-auto min-h-screen border-x border-slate-800">
+    <header class="p-4 flex justify-between items-center bg-[#0f172a] border-b border-slate-800">
+        <h1 class="font-bold text-lg">TraderScheme</h1>
+        <div class="bg-slate-900 px-2 py-1 rounded text-xs font-bold text-emerald-400">
+            {{ balance }} USD <span class="text-slate-500">Demo</span>
         </div>
+    </header>
 
-        <div v-else-if="!isAuthenticated" class="min-h-screen flex flex-col items-center justify-center p-4 bg-[#020617]">
-            <div class="w-full max-w-md bg-[#0f172a] border border-slate-800 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-yellow-500"></div>
-                
-                <div class="text-center mb-8">
-                    <h1 class="text-2xl font-black tracking-tight text-white">TraderWin<span class="text-amber-500">.com</span></h1>
-                    <p class="text-slate-400 text-xs mt-1">Access secure trading workspace terminal</p>
-                </div>
+    <nav class="flex overflow-x-auto p-2 gap-2 bg-[#0f172a] text-xs font-bold">
+        <button @click="activeTab = 'Dashboard'" :class="{'text-white border-b-2 border-amber-500': activeTab === 'Dashboard'}">Dashboard</button>
+        <button @click="activeTab = 'BotBuilder'" :class="{'text-white border-b-2 border-amber-500': activeTab === 'BotBuilder'}">Bot Builder</button>
+        <button @click="activeTab = 'Manual'" :class="{'text-white border-b-2 border-amber-500': activeTab === 'Manual'}">Manual Trader</button>
+    </nav>
 
-                <form @submit.prevent="handleAuthSubmit" class="space-y-4">
-                    <div v-if="isRegistering">
-                        <label class="block text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1.5">Full Name</label>
-                        <div class="relative">
-                            <i class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                            <input type="text" v-model="authForm.name" required class="w-full bg-[#020617] border border-slate-800 focus:border-amber-500/50 rounded-xl pl-10 pr-4 py-3 text-sm text-white outline-none transition" placeholder="John Doe">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1.5">Email Address</label>
-                        <div class="relative">
-                            <i class="fa-solid fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                            <input type="email" v-model="authForm.email" required class="w-full bg-[#020617] border border-slate-800 focus:border-amber-500/50 rounded-xl pl-10 pr-4 py-3 text-sm text-white outline-none transition" placeholder="mwangimilka835@gmail.com">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1.5">Password</label>
-                        <div class="relative">
-                            <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                            <input type="password" v-model="authForm.password" required class="w-full bg-[#020617] border border-slate-800 focus:border-amber-500/50 rounded-xl pl-10 pr-4 py-3 text-sm text-white outline-none transition" placeholder="•••••">
-                        </div>
-                    </div>
-
-                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 px-4 rounded-xl text-xs uppercase tracking-wider shadow-lg transition active:scale-[0.98] mt-2">
-                        {{ isRegistering ? 'Create License Profile' : 'Authenticate License' }}
-                    </button>
-                </form>
-
-                <div class="text-center mt-6">
-                    <button @click="isRegistering = !isRegistering" class="text-xs text-slate-400 hover:text-amber-500 transition">
-                        {{ isRegistering ? 'Already registered? Login here' : 'First time running this terminal? Sign up now' }}
-                    </button>
+    <main class="p-4">
+        <div v-if="activeTab === 'Dashboard'">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-[#0f172a] p-4 rounded-xl border border-slate-800 text-center">Load Bot</div>
+                <div class="bg-[#0f172a] p-4 rounded-xl border border-slate-800 text-center">Analysis Tool</div>
+            </div>
+            <div class="mt-6 bg-[#0f172a] p-4 rounded-xl border border-slate-800">
+                <h2 class="text-sm font-bold mb-4">Live Trading Signals</h2>
+                <div v-for="signal in signals" :key="signal.id" class="p-3 bg-slate-900 rounded mb-2">
+                    <p class="font-bold text-amber-500">{{ signal.asset }}</p>
+                    <p class="text-xs">Confidence: {{ signal.confidence }}%</p>
                 </div>
             </div>
         </div>
 
-        <div v-else class="min-h-screen flex flex-col bg-[#020617]">
-            <header class="bg-[#0f172a] border-b border-slate-800 px-4 py-3 flex justify-between items-center sticky top-0 z-40">
-                <div class="flex items-center space-x-3">
-                    <span class="text-lg font-black text-white tracking-tight">TraderWin <span class="bg-amber-500 text-slate-950 text-[9px] font-bold px-1.5 py-0.5 rounded ml-1">DEMO</span></span>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <div class="text-right">
-                        <div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Virtual Balance</div>
-                        <div class="text-emerald-400 font-mono font-bold text-sm">${{ balance.toFixed(2) }} <span class="text-[10px] text-slate-400">USD</span></div>
-                    </div>
-                    <button @click="logout" class="bg-slate-800 hover:bg-red-500/20 text-slate-400 hover:text-red-400 p-2 rounded-xl border border-slate-700 hover:border-red-500/30 transition">
-                        <i class="fa-solid fa-power-off text-xs"></i>
-                    </button>
-                </div>
-            </header>
-
-            <div class="bg-[#0f172a]/50 border-b border-slate-800 flex overflow-x-auto custom-scrollbar sticky top-[53px] z-30">
-                <button v-for="tab in navigationTabs" :key="tab" @click="activeTab = tab" :class="activeTab === tab ? 'border-amber-500 text-amber-500 bg-amber-500/5' : 'border-transparent text-slate-400 hover:text-slate-200'" class="px-4 py-3 text-xs font-bold border-b-2 whitespace-nowrap transition">
-                    {{ tab }}
-                </button>
-            </div>
-
-            <main class="flex-1 p-4 max-w-5xl w-full mx-auto space-y-4">
-                
-                <div v-if="activeTab === 'Speedbot'" class="space-y-4">
-                    <div class="bg-[#0f172a] border border-slate-800 rounded-xl p-4 shadow-xl">
-                        <div class="flex justify-between items-center mb-3">
-                            <h2 class="text-xs uppercase tracking-wider text-slate-400 font-bold">Live Volatility Stream</h2>
-                            <span class="text-xs font-mono font-bold text-amber-500">${{ chartSpotPrice.toFixed(2) }}</span>
-                        </div>
-                        <div class="h-20 flex items-end justify-between gap-1 bg-[#020617] p-2 rounded-lg border border-slate-800/80">
-                            <div v-for="(pt, idx) in chartPoints" :key="idx" :style="{ height: pt + '%' }" class="flex-1 bg-gradient-to-t from-amber-500/20 to-amber-500 rounded-sm min-h-[4px] transition-all duration-300"></div>
-                        </div>
-                    </div>
-
-                    <div class="space-y-3">
-                        <div v-for="sig in filteredSignals" :key="sig.id" class="bg-[#0f172a] border border-slate-800 rounded-xl overflow-hidden shadow-lg">
-                            <div class="p-3 flex justify-between items-center bg-slate-900/40">
-                                <div>
-                                    <h3 class="text-sm font-bold text-white">{{ sig.asset }}</h3>
-                                    <span class="text-[10px] uppercase font-bold text-slate-400">Confidence Match: </span>
-                                    <span class="text-[10px] font-mono font-bold text-emerald-400">{{ sig.confidence }}%</span>
-                                </div>
-                                <button @click="executeVirtualTrade(sig)" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs px-4 py-2 rounded-lg flex items-center space-x-1.5 transition active:scale-95">
-                                    <i class="fa-solid fa-circle-play"></i>
-                                    <span>Run Target</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div v-else class="bg-[#0f172a] border border-slate-800 rounded-xl p-8 text-center">
-                    <i class="fa-solid fa-sliders text-slate-600 text-3xl mb-3"></i>
-                    <h3 class="text-sm font-bold text-white mb-1">{{ activeTab }} Module Offline</h3>
-                    <p class="text-slate-400 text-xs max-w-xs mx-auto">This functional strategy workspace is locked until terminal authentication completes a legal handshake.</p>
-                </div>
-            </main>
-
-            <footer class="bg-[#0f172a] border-t border-slate-800 px-4 py-2 text-center text-[10px] text-slate-500 flex justify-between items-center mt-auto">
-                <span>© 2026 TraderWin Engine</span>
-                <div class="space-x-3">
-                    <button @click="openModal('TERMS')" class="hover:text-slate-300">Terms of Service</button>
-                    <button @click="openModal('RISK')" class="hover:text-slate-300">Risk Disclosure</button>
-                </div>
-            </footer>
+        <div v-else class="text-center mt-20 text-slate-500">
+            {{ activeTab }} Module Loading...
         </div>
+    </main>
+</div>
 
-        <div v-if="activeModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div class="w-full max-w-md bg-[#0f172a] border border-slate-800 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
-                    <h2 class="text-xs uppercase tracking-wider text-amber-500 font-bold font-mono">
-                        {{ activeModal === 'TERMS' ? 'TERMS OF SERVICE CORE' : 'FINANCIAL RISK DISCLOSURE' }}
-                    </h2>
-                    <button @click="openModal(null)" class="text-slate-500 hover:text-white transition">
-                        <i class="fa-solid fa-xmark text-sm"></i>
-                    </button>
-                </div>
-                <div class="p-6 space-y-4 max-h-[60vh] overflow-y-auto text-xs text-slate-400 custom-scrollbar leading-relaxed">
-                    <div class="space-y-2">
-                        <h4 class="font-bold text-white text-slate-200">1. Phase 1 Sandbox Parameters</h4>
-                        <p>TraderWin.com operates exclusively as an educational simulation platform in Phase 1. All performance algorithms, financial balances, stakes, tracking indices, payouts, and interface records are completely virtual.</p>
-                    </div>
-                    <div class="space-y-2">
-                        <h4 class="font-bold text-red-400">High Risk Speculation Warning</h4>
-                        <p>Trading Synthetic Indices involves intense volatility risk driven by cryptographic mathematical structures. Movements are extreme and instant. Past simulated yields do not map directly to live market safety limits.</p>
-                    </div>
-                </div>
-                <div class="p-4 bg-slate-900/50 border-t border-slate-800 flex justify-end">
-                    <button @click="openModal(null)" class="bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition">
-                        I Understand
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div v-if="toastMessage" class="fixed bottom-4 left-4 right-4 md:left-auto md:w-80 bg-slate-900 border border-amber-500/30 text-amber-400 text-xs px-4 py-3.5 rounded-xl shadow-2xl flex items-center space-x-3 z-50 font-mono">
-            <div class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></div>
-            <span class="flex-1">{{ toastMessage }}</span>
-        </div>
-    </div>
-
-
-    <script>
-    const { createApp, ref, computed, onMounted } = Vue;
-
+<script>
+    const { createApp, ref, onMounted } = Vue;
     createApp({
         setup() {
-            // Screen & Terminal Navigation states
-            const isLoading = ref(true);
-            const bootPercent = ref(0);
-            const loadingStatusText = ref("Initializing TraderWin Terminal...");
-            const isAuthenticated = ref(false);
-            const isRegistering = ref(false);
-            const activeTab = ref("Speedbot");
-
-            // Base Interface Controls
-            const balance = ref(0.00);
-            const toastMessage = ref("");
-            const activeModal = ref("TERMS"); 
-            const searchQuery = ref("");
-
-            // Chart & Fluctuation Engine States
-            const chartSpotPrice = ref(2450.50);
-            const chartPoints = ref([45, 32, 56, 41, 65, 48, 39, 52, 61, 44, 50, 38, 55, 42, 59]);
-            const digitStats = ref({ 0: 8, 1: 11, 2: 9, 3: 7, 4: 10, 5: 12, 6: 6, 7: 14, 8: 8, 9: 10 });
-
-            // Hifadhi ya siri ya akaunti (Local Workspace Memory)
-            const registeredUser = ref({ name: '', email: '', password: '' });
-            
-            // TOKEN YA MAJARIBIO (Kama ni invalid, mfumo utaswitch kwenda simulation badala ya kukwama)
-            const derivToken = ref("pat_074035b32dd29b413024ae73c1a07dc91242831bf045516b897db5d6362799cb");  
-            const derivAppId = ref("1089"); 
-            let derivSocket = null;      
-            let simulationInterval = null;
-
-            // Navigation Tab Options
-            const navigationTabs = [
-                "Speedbot", "Automated", "Chart", "Analysis Tools", 
-                "Dashboard", "Bot Builder", "Manual Trader", "Apex Bot", 
-                "Copy Trader", "Free Bots"
-            ];
-
-            // Signals Data Array
+            const activeTab = ref('Dashboard');
+            const balance = ref('6,790.80');
             const signals = ref([
-                { id: 101, asset: "Volatility 50 Index", prediction: "OVER 4", confidence: 49.2, isSlow: false, showDetails: false, statPercent: "58.3%", mostDigit: 5, leastDigit: 4 },
-                { id: 102, asset: "Volatility 75 Index", prediction: "EVEN", confidence: 51.4, isSlow: true, showDetails: false, statPercent: "56.7%", mostDigit: 3, leastDigit: 7 },
-                { id: 103, asset: "Volatility 100 Index", prediction: "OVER 4", confidence: 47.9, isSlow: false, showDetails: false, statPercent: "57.5%", mostDigit: 4, leastDigit: 7 }
+                { id: 1, asset: 'Volatility 100 (1s) Index', confidence: 56.7 },
+                { id: 2, asset: 'Volatility 50 Index', confidence: 57.5 }
             ]);
 
-            const filteredSignals = computed(() => {
-                return signals.value.filter(sig => 
-                    sig.asset.toLowerCase().includes(searchQuery.value.toLowerCase())
-                );
-            });
-
-            // Boot Sequence Tracker (0 to 100%)
-            const executeBootSequence = () => {
-                const logs = [
-                    "Initializing TraderWin System Core...",
-                    "Mapping Horizontal Navigation Marquees...",
-                    "Buffering Phase 1 Sandbox Environments...",
-                    "System Terminal Secured!"
-                ];
-
-                const interval = setInterval(() => {
-                    if (bootPercent.value < 100) {
-                        bootPercent.value += Math.floor(Math.random() * 6) + 3;
-                        if (bootPercent.value > 100) bootPercent.value = 100;
-
-                        if (bootPercent.value < 25) loadingStatusText.value = logs[0];
-                        else if (bootPercent.value < 55) loadingStatusText.value = logs[1];
-                        else if (bootPercent.value < 85) loadingStatusText.value = logs[2];
-                        else loadingStatusText.value = logs[3];
-                    } else {
-                        clearInterval(interval);
-                        setTimeout(() => {
-                            isLoading.value = false;
-                        }, 500);
-                    }
-                }, 45);
-            };
-
-            // START OFFLINE SIMULATION ENGINE (Inatumika kama Token ikifeli)
-            const startOfflineSimulation = () => {
-                if (simulationInterval) clearInterval(simulationInterval);
-                balance.value = 10000.00; // Mpe demo virtual balance
-                
-                simulationInterval = setInterval(() => {
-                    chartSpotPrice.value = parseFloat((chartSpotPrice.value + (Math.random() * 2 - 1)).toFixed(2));
-                    chartPoints.value.shift();
-                    chartPoints.value.push(Math.floor(Math.random() * 60) + 20);
-                    
-                    const randomDigit = Math.floor(Math.random() * 10);
-                    digitStats.value[randomDigit] = (digitStats.value[randomDigit] || 0) + 1;
-                    if (digitStats.value[randomDigit] > 30) {
-                        digitStats.value = { 0: 8, 1: 11, 2: 9, 3: 7, 4: 10, 5: 12, 6: 6, 7: 14, 8: 8, 9: 10 };
-                    }
-                    
-                    signals.value.forEach(sig => {
-                        let step = (Math.random() * 0.8 - 0.4);
-                        sig.confidence = parseFloat((sig.confidence + step).toFixed(1));
-                    });
-                }, 1000);
-            };
-
-            // LIVE DERIV WEBSOCKET HANDSHAKE CORE
-            const connectToDerivAPI = (token, appId) => {
-                toastMessage.value = "Establishing handshake with Deriv WebSocket server...";
-                
-                derivSocket = new WebSocket("wss://ws.derivws.com/websockets/v3?app_id=" + appId);
-
-                derivSocket.onopen = () => {
-                    toastMessage.value = "Connected! Authorizing trading terminal token...";
-                    derivSocket.send(JSON.stringify({ authorize: token }));
-                };
-
-                derivSocket.onmessage = (msg) => {
-                    const response = JSON.parse(msg.data);
-
-                    if (response.msg_type === 'authorize') {
-                        if (response.error) {
-                            // SULUHISHO: Token ikiwa mbovu, usikwame! Badili kwenda Simulation Mode
-                            toastMessage.value = "✕ DERIV ERROR: Invalid Token. Launching Sandbox Mode...";
-                            if (derivSocket) derivSocket.close();
-                            
-                            setTimeout(() => {
-                                startOfflineSimulation();
-                                toastMessage.value = "✓ Sandbox Engine Activated Successfully.";
-                            }, 1500);
-                            return;
-                        }
-                        
-                        if (response.authorize.balance) {
-                            balance.value = parseFloat(response.authorize.balance);
-                        }
-                        
-                        toastMessage.value = "✓ Authorized! Subscribing to Volatility 75 Live Ticks...";
-                        derivSocket.send(JSON.stringify({ ticks: 'R_75' }));
-                    }
-
-                    if (response.msg_type === 'tick') {
-                        if (response.error) return;
-
-                        const tick = response.tick;
-                        chartSpotPrice.value = tick.quote;
-
-                        chartPoints.value.shift();
-                        const simulatedHeight = Math.floor((tick.quote % 10) * 10);
-                        chartPoints.value.push(simulatedHeight > 0 ? simulatedHeight : 40);
-
-                        const quoteString = tick.quote.toString();
-                        const lastDigit = parseInt(quoteString.charAt(quoteString.length - 1));
-                        
-                        if (!isNaN(lastDigit) && lastDigit >= 0 && lastDigit <= 9) {
-                            digitStats.value[lastDigit] = (digitStats.value[lastDigit] || 0) + 1;
-                        }
-
-                        signals.value.forEach(sig => {
-                            let step = (Math.random() * 0.8 - 0.4);
-                            sig.confidence = parseFloat((sig.confidence + step).toFixed(1));
-                        });
-                    }
-                };
-
-                derivSocket.onerror = (err) => {
-                    toastMessage.value = "✕ Connection error. Falling back to Sandbox...";
-                    startOfflineSimulation();
+            // Deriv WebSocket Connection Placeholder
+            const connectDeriv = () => {
+                const ws = new WebSocket('wss://ws.binaryws.com/websockets/v3?app_id=1089');
+                ws.onopen = () => console.log("Handshake established");
+                ws.onmessage = (e) => {
+                    const data = JSON.parse(e.data);
+                    // Handle API ticks/signals here
                 };
             };
 
-            const handleAuthSubmit = () => {
-                if (isRegistering.value) {
-                    registeredUser.value = { 
-                        name: authForm.value.name, 
-                        email: authForm.value.email, 
-                        password: authForm.value.password 
-                    };
-                    toastMessage.value = "Profile saved! Syncing secure terminal credentials...";
-                    setTimeout(() => {
-                        isRegistering.value = false;
-                        authForm.value.password = ""; 
-                        toastMessage.value = "";
-                    }, 1500);
-                } else {
-                    isAuthenticated.value = true;
-                    // Jaribu kuunganisha Deriv API
-                    connectToDerivAPI(derivToken.value, derivAppId.value);
-                }
-            };
-
-            const logout = () => {
-                if (derivSocket) derivSocket.close();
-                if (simulationInterval) clearInterval(simulationInterval);
-                isAuthenticated.value = false;
-                isRegistering.value = false; 
-                authForm.value.email = "";
-                authForm.value.password = "";
-                toastMessage.value = "Session terminated safely.";
-                setTimeout(() => { toastMessage.value = ""; }, 2000);
-            };
-
-            const executeVirtualTrade = (signal) => {
-                const mode = signal.isSlow ? 'SLOW' : 'FAST';
-                toastMessage.value = "[" + mode + " MODE] Synchronizing contract parameters via Deriv Core...";
-                
-                setTimeout(() => {
-                    const stake = 15.00;
-                    balance.value -= stake;
-                    toastMessage.value = "Executed! Contract placed via " + signal.asset + ". Payout pending...";
-                    
-                    setTimeout(() => {
-                        if (Math.random() > 0.46) {
-                            const winAmt = stake * 1.95;
-                            balance.value += winAmt;
-                            toastMessage.value = "✓ SUCCESSFUL RECOVERY! +$" + winAmt.toFixed(2);
-                        } else {
-                            toastMessage.value = "✕ LOSS! Virtual stake contract closed out index bounds.";
-                        }
-                        setTimeout(() => { toastMessage.value = ""; }, 3000);
-                    }, 2000);
-                }, 1500);
-            };
-
-            const triggerGlobalAction = (msg) => {
-                toastMessage.value = msg;
-                setTimeout(() => { toastMessage.value = ""; }, 2500);
-            };
-
-            const openModal = (type) => { activeModal.value = type; };
-            const authForm = ref({ name: '', email: '', password: '' });
-
-            // LIFE CYCLE NA USALAMA WA LOCKOUT
-            onMounted(() => {
-                const deadline = new Date("2026-06-02"); 
-                const today = new Date();
-                
-                if (today > deadline) {
-                    document.getElementById("app").innerHTML = `
-                        <div style="background:#020617; color:#ef4444; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; font-family:sans-serif; padding:20px;">
-                            <h1 style="font-size:26px; font-weight:900; margin-bottom:10px; tracking-tight: -0.05em;">WORKSPACE LOCKOUT</h1>
-                            <p style="color:#64748b; font-size:13px; max-w-xs; line-height:1.6;">Terminal secure core license signature has expired. Please contact the administrator to sync workspace parameters.</p>
-                        </div>
-                    `;
-                    return;
-                }
-                executeBootSequence();
-            });
-
-            return {
-                isLoading, bootPercent, loadingStatusText,
-                isAuthenticated, isRegistering, authForm, handleAuthSubmit, logout,
-                activeTab, navigationTabs, signals, searchQuery, filteredSignals,
-                balance, toastMessage, activeModal, chartSpotPrice, chartPoints, digitStats,
-                executeVirtualTrade, triggerGlobalAction, openModal, derivToken, derivAppId
-            };
+            onMounted(connectDeriv);
+            return { activeTab, balance, signals };
         }
     }).mount('#app');
 </script>
 </body>
-    </html>
-
-                            
+</html>
