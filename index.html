@@ -344,113 +344,47 @@
     </div>
 </div>
 
-<script>
+
+    <script>
     const { createApp, ref, computed, onMounted } = Vue;
 
     createApp({
         setup() {
-            // UI Core Hooks & State Controllers
+            // Screen & Terminal Navigation states
             const isLoading = ref(true);
             const bootPercent = ref(0);
-            const loadingStatusText = ref("Boot sequence loading...");
-            const activeTab = ref("Dashboard");
-            const activeModal = ref(null);
+            const loadingStatusText = ref("Initializing TraderWin Terminal...");
+            const isAuthenticated = ref(false);
+            const isRegistering = ref(false);
+            const activeTab = ref("Speedbot");
+
+            // Base Interface Controls
+            const balance = ref(0.00);
             const toastMessage = ref("");
-            const balance = ref(6790.80);
+            const activeModal = ref("TERMS"); // Inafungua Terms kwanza kama inavyoonekana kwenye video
             const searchQuery = ref("");
 
-            // USER AUTHENTICATION STATES
-            const isAuthenticated = ref(false);
-            const isRegistering = ref(true);
-            const authForm = ref({ name: '', email: '', password: '' });
+            // Chart & Fluctuation Engine States
+            const chartSpotPrice = ref(2450.50);
+            const chartPoints = ref([45, 32, 56, 41, 65, 48, 39, 52, 61, 44, 50, 38, 55, 42, 59]);
+            const digitStats = ref({ 0: 8, 1: 11, 2: 9, 3: 7, 4: 10, 5: 12, 6: 6, 7: 14, 8: 8, 9: 10 });
 
-            // Analytics Mock Data Streams
-            const chartSpotPrice = ref(2450.75);
-            const chartPoints = ref([40, 45, 38, 52, 60, 48, 55, 70, 62, 68, 74, 80]);
-            const digitStats = ref({ 0: 7, 1: 12, 2: 10, 3: 6, 4: 8, 5: 12, 6: 6, 7: 13, 8: 8, 9: 10 });
-
-            // Standardized Array Strings
-            const navigationTabs = [
-                "Speedbot", "Automated", "Chart", "Analysis Tools", 
-                "Dashboard", "Bot Builder", "Manual Trader", "Apex Bot", 
-                "Copy Trader", "Free Bots"
-            ];
-
-            const signals = ref([
-                { id: 101, asset: "Volatility 50 Index", prediction: "OVER 4", confidence: 49.2, isSlow: false, showDetails: false, statPercent: "58.3%", mostDigit: 5, leastDigit: 4 },
-                { id: 102, asset: "Volatility 75 Index", prediction: "EVEN", confidence: 51.4, isSlow: true, showDetails: false, statPercent: "56.7%", mostDigit: 3, leastDigit: 7 },
-                { id: 103, asset: "Volatility 100 Index", prediction: "OVER 4", confidence: 47.9, isSlow: false, showDetails: false, statPercent: "57.5%", mostDigit: 4, leastDigit: 7 }
-            ]);
-
-            const filteredSignals = computed(() => {
-                return signals.value.filter(sig => 
-                    sig.asset.toLowerCase().includes(searchQuery.value.toLowerCase())
-                );
-            });
-
-            // Loader Simulation Thread
-            const executeBootSequence = () => {
-                const logs = [
-                    "Initializing TraderWin System Core...",
-                    "Mapping Horizontal Navigation Marquees...",
-                    "Buffering Phase 1 Sandbox Environments...",
-                    "System Terminal Secured!"
-                ];
-
-                const interval = setInterval(() => {
-                    if (bootPercent.value < 100) {
-                        bootPercent.value += Math.floor(Math.random() * 6) + 3;
-                        if (bootPercent.value > 100) bootPercent.value = 100;
-
-                        if (bootPercent.value < 25) loadingStatusText.value = logs[0];
-                        else if (bootPercent.value < 55) loadingStatusText.value = logs[1];
-                        else if (bootPercent.value < 85) loadingStatusText.value = logs[2];
-                        else loadingStatusText.value = logs[3];
-                    } else {
-                        clearInterval(interval);
-                        setTimeout(() => {
-                            isLoading.value = false;
-                            startAlgorithmicFluctuations();
-                        }, 500);
-                    }
-                }, 45);
-            };
-
-            // Chart and Stat Fluctuations Engine Loop
-            const startAlgorithmicFluctuations = () => {
-                setInterval(() => {
-                    if (isLoading.value || !isAuthenticated.value) return;
-                    
-                    signals.value.forEach(sig => {
-                        let step = (Math.random() * 1.2 - 0.6);
-                        sig.confidence = parseFloat((sig.confidence + step).toFixed(1));
-                    });
-
-                    chartSpotPrice.value += (Math.random() * 4 - 2);
-                    chartPoints.value.shift();
-                    chartPoints.value.push(Math.floor(Math.random() * 60) + 20);
-
-                    const randomDigit = Math.floor(Math.random() * 10);
-                    digitStats.value[randomDigit] = Math.floor(Math.random() * 8) + 6;
-                }, 1200);
-            };
-
-
-        // Hifadhi ya siri ya akaunti na API za Deriv (Local Workspace Memory)
+            // Hifadhi ya siri ya akaunti (Local Workspace Memory)
             const registeredUser = ref({ name: '', email: '', password: '' });
             
-            // WEKA TOKEN YA MTEJA HAPA KWA AJILI YA MAJARIBIO YA LIVE CONNECTION
+            // TOKEN YA MTEJA KWA AJILI YA LIVE MAJARIBIO YA DERIV
             const derivToken = ref("pat_ed586a9ab1ede610dca73cad956da3af12e8027bf2cf3e5a72797dcd9f9e27c1");  
-            const derivAppId = ref("1089"); // Default Deriv App ID
-            let derivSocket = null;      // Kiunganishi cha WebSocket
+            const derivAppId = ref("1089"); 
+            let derivSocket = null;      
 
-            // Standardized Array Strings
+            // Navigation Tab Options
             const navigationTabs = [
                 "Speedbot", "Automated", "Chart", "Analysis Tools", 
                 "Dashboard", "Bot Builder", "Manual Trader", "Apex Bot", 
                 "Copy Trader", "Free Bots"
             ];
 
+            // Signals Data Array
             const signals = ref([
                 { id: 101, asset: "Volatility 50 Index", prediction: "OVER 4", confidence: 49.2, isSlow: false, showDetails: false, statPercent: "58.3%", mostDigit: 5, leastDigit: 4 },
                 { id: 102, asset: "Volatility 75 Index", prediction: "EVEN", confidence: 51.4, isSlow: true, showDetails: false, statPercent: "56.7%", mostDigit: 3, leastDigit: 7 },
@@ -463,7 +397,7 @@
                 );
             });
 
-            // Loader Simulation Thread (0 to 100%)
+            // Boot Sequence Tracker (0 to 100%)
             const executeBootSequence = () => {
                 const logs = [
                     "Initializing TraderWin System Core...",
@@ -490,11 +424,11 @@
                 }, 45);
             };
 
-            // LIVE DERIV WEBSOCKET CONNECTION ENGINE
+            // LIVE DERIV WEBSOCKET HANDSHAKE CORE
             const connectToDerivAPI = (token, appId) => {
                 toastMessage.value = "Establishing handshake with Deriv WebSocket server...";
                 
-                derivSocket = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${appId}`);
+                derivSocket = new WebSocket("wss://ws.derivws.com/websockets/v3?app_id=" + appId);
 
                 derivSocket.onopen = () => {
                     toastMessage.value = "Connected! Authorizing trading terminal token...";
@@ -511,7 +445,6 @@
                             return;
                         }
                         
-                        // Kuchukua balance halisi kutoka kwa akaunti ya mteja ya Deriv
                         if (response.authorize.balance) {
                             balance.value = parseFloat(response.authorize.balance);
                         }
@@ -530,7 +463,7 @@
                         const simulatedHeight = Math.floor((tick.quote % 10) * 10);
                         chartPoints.value.push(simulatedHeight > 0 ? simulatedHeight : 40);
 
-                        // Last Digit Frequency Logic
+                        // Real-time Last Digit Frequency Extraction
                         const quoteString = tick.quote.toString();
                         const lastDigit = parseInt(quoteString.charAt(quoteString.length - 1));
                         
@@ -562,8 +495,9 @@
                 isAuthenticated.value = false;
             };
 
+            // Authentication Form Formatter
+            const authForm = ref({ name: '', email: '', password: '' });
 
-            // Authentication Handling Form
             const handleAuthSubmit = () => {
                 if (isRegistering.value) {
                     registeredUser.value = { 
@@ -579,7 +513,7 @@
                     }, 1500);
                 } else {
                     isAuthenticated.value = true;
-                    // Inajiunganisha yenyewe moja kwa moja kwa kutumia ile token ya mteja uliyoweka juu!
+                    // Kuanzisha muunganisho wa seva mara moja mtumiaji anapoingia
                     connectToDerivAPI(derivToken.value, derivAppId.value);
                 }
             };
@@ -594,23 +528,23 @@
                 setTimeout(() => { toastMessage.value = ""; }, 2000);
             };
 
-            // Trade Simulation Trigger
+            // Trade Sequence Action Trigger
             const executeVirtualTrade = (signal) => {
                 const mode = signal.isSlow ? 'SLOW' : 'FAST';
-                toastMessage.value = `[\${mode} MODE] Synchronizing contract parameters via Deriv Core...`;
+                toastMessage.value = "[" + mode + " MODE] Synchronizing contract parameters via Deriv Core...";
                 
                 setTimeout(() => {
                     const stake = 15.00;
                     balance.value -= stake;
-                    toastMessage.value = `Executed! Contract placed via \${signal.asset}. Payout pending...`;
+                    toastMessage.value = "Executed! Contract placed via " + signal.asset + ". Payout pending...";
                     
                     setTimeout(() => {
                         if (Math.random() > 0.46) {
                             const winAmt = stake * 1.95;
                             balance.value += winAmt;
-                            toastMessage.value = `✓ SUCCESSFUL RECOVERY! +$\${winAmt.toFixed(2)}`;
+                            toastMessage.value = "✓ SUCCESSFUL RECOVERY! +$" + winAmt.toFixed(2);
                         } else {
-                            toastMessage.value = `✕ LOSS! Virtual stake contract closed out index bounds.`;
+                            toastMessage.value = "✕ LOSS! Virtual stake contract closed out index bounds.";
                         }
                         setTimeout(() => { toastMessage.value = ""; }, 3000);
                     }, 2000);
@@ -622,14 +556,14 @@
                 setTimeout(() => { toastMessage.value = ""; }, 2500);
             };
 
-            // MODAL ENGINE INTERFACE (Hii ndiyo itakayoruhusu kufunga lile sanduku la Terms)
+            // MODAL ENGINE INTERFACE (Kufungua na kufunga kile kizimba cha Terms)
             const openModal = (type) => { 
                 activeModal.value = type; 
             };
 
-            // ONMOUNTED IKIWA NA USALAMA WA KILL-SWITCH
+            // LIFECYCLE EVENT IKIWA NA USALAMA WA KILL-SWITCH
             onMounted(() => {
-                // Mfumo utajifunga wenyewe kiotomatiki tarehe 2 June 2026 kama hajalipa
+                // LOCKOUT TIMEOUT: Mfumo unajilock wenyewe tarehe 2 June 2026 kukulinda usipolipwa
                 const deadline = new Date("2026-06-02"); 
                 const today = new Date();
                 
@@ -656,7 +590,10 @@
     }).mount('#app');
 </script>
 </body>
-</html>
+    </html>
 
-            
+
+
+
+ 
 
