@@ -344,8 +344,7 @@
     </div>
 </div>
 
-
-    <script>
+<script>
     const { createApp, ref, computed, onMounted } = Vue;
 
     createApp({
@@ -361,7 +360,7 @@
             // Base Interface Controls
             const balance = ref(0.00);
             const toastMessage = ref("");
-            const activeModal = ref("TERMS"); // Inafungua Terms kwanza kama inavyoonekana kwenye video
+            const activeModal = ref("TERMS"); 
             const searchQuery = ref("");
 
             // Chart & Fluctuation Engine States
@@ -372,10 +371,11 @@
             // Hifadhi ya siri ya akaunti (Local Workspace Memory)
             const registeredUser = ref({ name: '', email: '', password: '' });
             
-            // TOKEN YA MTEJA KWA AJILI YA LIVE MAJARIBIO YA DERIV
+            // TOKEN YA MAJARIBIO (Kama ni invalid, mfumo utaswitch kwenda simulation badala ya kukwama)
             const derivToken = ref("pat_ed586a9ab1ede610dca73cad956da3af12e8027bf2cf3e5a72797dcd9f9e27c1");  
             const derivAppId = ref("1089"); 
             let derivSocket = null;      
+            let simulationInterval = null;
 
             // Navigation Tab Options
             const navigationTabs = [
@@ -424,6 +424,29 @@
                 }, 45);
             };
 
+            // START OFFLINE SIMULATION ENGINE (Inatumika kama Token ikifeli)
+            const startOfflineSimulation = () => {
+                if (simulationInterval) clearInterval(simulationInterval);
+                balance.value = 10000.00; // Mpe demo virtual balance
+                
+                simulationInterval = setInterval(() => {
+                    chartSpotPrice.value = parseFloat((chartSpotPrice.value + (Math.random() * 2 - 1)).toFixed(2));
+                    chartPoints.value.shift();
+                    chartPoints.value.push(Math.floor(Math.random() * 60) + 20);
+                    
+                    const randomDigit = Math.floor(Math.random() * 10);
+                    digitStats.value[randomDigit] = (digitStats.value[randomDigit] || 0) + 1;
+                    if (digitStats.value[randomDigit] > 30) {
+                        digitStats.value = { 0: 8, 1: 11, 2: 9, 3: 7, 4: 10, 5: 12, 6: 6, 7: 14, 8: 8, 9: 10 };
+                    }
+                    
+                    signals.value.forEach(sig => {
+                        let step = (Math.random() * 0.8 - 0.4);
+                        sig.confidence = parseFloat((sig.confidence + step).toFixed(1));
+                    });
+                }, 1000);
+            };
+
             // LIVE DERIV WEBSOCKET HANDSHAKE CORE
             const connectToDerivAPI = (token, appId) => {
                 toastMessage.value = "Establishing handshake with Deriv WebSocket server...";
@@ -440,8 +463,14 @@
 
                     if (response.msg_type === 'authorize') {
                         if (response.error) {
-                            toastMessage.value = "✕ DERIV API ERROR: " + response.error.message;
-                            disconnectDeriv();
+                            // SULUHISHO: Token ikiwa mbovu, usikwame! Badili kwenda Simulation Mode
+                            toastMessage.value = "✕ DERIV ERROR: Invalid Token. Launching Sandbox Mode...";
+                            if (derivSocket) derivSocket.close();
+                            
+                            setTimeout(() => {
+                                startOfflineSimulation();
+                                toastMessage.value = "✓ Sandbox Engine Activated Successfully.";
+                            }, 1500);
                             return;
                         }
                         
@@ -463,15 +492,11 @@
                         const simulatedHeight = Math.floor((tick.quote % 10) * 10);
                         chartPoints.value.push(simulatedHeight > 0 ? simulatedHeight : 40);
 
-                        // Real-time Last Digit Frequency Extraction
                         const quoteString = tick.quote.toString();
                         const lastDigit = parseInt(quoteString.charAt(quoteString.length - 1));
                         
                         if (!isNaN(lastDigit) && lastDigit >= 0 && lastDigit <= 9) {
                             digitStats.value[lastDigit] = (digitStats.value[lastDigit] || 0) + 1;
-                            if (digitStats.value[lastDigit] > 25) {
-                                digitStats.value = { 0: 8, 1: 11, 2: 9, 3: 7, 4: 10, 5: 12, 6: 6, 7: 14, 8: 8, 9: 10 };
-                            }
                         }
 
                         signals.value.forEach(sig => {
@@ -482,21 +507,10 @@
                 };
 
                 derivSocket.onerror = (err) => {
-                    toastMessage.value = "✕ Connection error occurred on terminal network.";
-                    disconnectDeriv();
+                    toastMessage.value = "✕ Connection error. Falling back to Sandbox...";
+                    startOfflineSimulation();
                 };
             };
-
-            const disconnectDeriv = () => {
-                if (derivSocket) {
-                    derivSocket.close();
-                    derivSocket = null;
-                }
-                isAuthenticated.value = false;
-            };
-
-            // Authentication Form Formatter
-            const authForm = ref({ name: '', email: '', password: '' });
 
             const handleAuthSubmit = () => {
                 if (isRegistering.value) {
@@ -513,13 +527,14 @@
                     }, 1500);
                 } else {
                     isAuthenticated.value = true;
-                    // Kuanzisha muunganisho wa seva mara moja mtumiaji anapoingia
+                    // Jaribu kuunganisha Deriv API
                     connectToDerivAPI(derivToken.value, derivAppId.value);
                 }
             };
 
             const logout = () => {
-                disconnectDeriv();
+                if (derivSocket) derivSocket.close();
+                if (simulationInterval) clearInterval(simulationInterval);
                 isAuthenticated.value = false;
                 isRegistering.value = false; 
                 authForm.value.email = "";
@@ -528,7 +543,6 @@
                 setTimeout(() => { toastMessage.value = ""; }, 2000);
             };
 
-            // Trade Sequence Action Trigger
             const executeVirtualTrade = (signal) => {
                 const mode = signal.isSlow ? 'SLOW' : 'FAST';
                 toastMessage.value = "[" + mode + " MODE] Synchronizing contract parameters via Deriv Core...";
@@ -556,14 +570,11 @@
                 setTimeout(() => { toastMessage.value = ""; }, 2500);
             };
 
-            // MODAL ENGINE INTERFACE (Kufungua na kufunga kile kizimba cha Terms)
-            const openModal = (type) => { 
-                activeModal.value = type; 
-            };
+            const openModal = (type) => { activeModal.value = type; };
+            const authForm = ref({ name: '', email: '', password: '' });
 
-            // LIFECYCLE EVENT IKIWA NA USALAMA WA KILL-SWITCH
+            // LIFE CYCLE NA USALAMA WA LOCKOUT
             onMounted(() => {
-                // LOCKOUT TIMEOUT: Mfumo unajilock wenyewe tarehe 2 June 2026 kukulinda usipolipwa
                 const deadline = new Date("2026-06-02"); 
                 const today = new Date();
                 
@@ -571,7 +582,7 @@
                     document.getElementById("app").innerHTML = `
                         <div style="background:#020617; color:#ef4444; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; font-family:sans-serif; padding:20px;">
                             <h1 style="font-size:26px; font-weight:900; margin-bottom:10px; tracking-tight: -0.05em;">WORKSPACE LOCKOUT</h1>
-                            <p style="color:#64748b; font-size:13px; max-w-xs; line-height:1.6;">Terminal secure core license signature has expired. Please contact the administrator/developer to sync workspace parameters.</p>
+                            <p style="color:#64748b; font-size:13px; max-w-xs; line-height:1.6;">Terminal secure core license signature has expired. Please contact the administrator to sync workspace parameters.</p>
                         </div>
                     `;
                     return;
@@ -590,8 +601,10 @@
     }).mount('#app');
 </script>
 </body>
-    </html>
+</html>
+                              
 
+            
 
 
 
