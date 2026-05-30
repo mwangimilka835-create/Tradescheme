@@ -17,6 +17,12 @@
         .dot2 { animation-delay: -0.16s; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn { animation: fadeIn 0.25s ease-out forwards; }
     </style>
 </head>
 <body class="bg-gray-100 font-sans antialiased text-gray-800 select-none">
@@ -251,11 +257,7 @@
                                 <select class="w-full text-xs p-2 bg-white border border-gray-200 rounded-lg focus:outline-none">
                                     <option>Volatility 100 Index</option>
                                     <option>Volatility 75 Index</option>
-                                    <option>Volatility 50 Index</option>
-                                </select>
-                            </div>
-                      <div class="grid grid-cols-2 gap-2">
-                            <div>
+                                    <div>
                                 <label class="text-[10px] uppercase font-bold text-gray-400 block mb-1">Virtual Stake ($)</label>
                                 <input type="number" value="10" class="w-full text-xs p-2 bg-white border border-gray-200 rounded-lg focus:outline-none">
                             </div>
@@ -269,7 +271,7 @@
                         </button>
                     </div>
 
-                    <div class="border border-gray-200 rounded-xl p-4 bg-white space-y-3">
+                    <div v-if="activeTab === 'Chart'" class="border border-gray-200 rounded-xl p-4 bg-white space-y-3 animate-fadeIn">
                         <div class="flex justify-between items-center">
                             <h4 class="text-xs font-black text-slate-900 uppercase tracking-wide">Live Market Graph Stream</h4>
                             <span class="text-[11px] font-mono font-bold text-indigo-600">V75 [1s]</span>
@@ -282,7 +284,7 @@
                         </div>
                     </div>
 
-                    <div class="border border-gray-200 rounded-xl p-4 bg-white">
+                    <div v-if="activeTab === 'Analysis Tools'" class="border border-gray-200 rounded-xl p-4 bg-white animate-fadeIn">
                         <h4 class="text-xs font-black text-slate-900 uppercase tracking-wide mb-2.5">Digit Frequency Analyzer (Last 100 Ticks)</h4>
                         <div class="grid grid-cols-5 gap-1.5">
                             <div v-for="(freq, digit) in digitStats" :key="digit" class="bg-gray-50 border border-gray-100 rounded-lg p-1.5 text-center">
@@ -494,4 +496,5 @@
     }).mount('#app');
 </script>
 </body>
-                            </html>
+    </html>
+ 
