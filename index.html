@@ -344,7 +344,8 @@
     </div>
 </div>
 
-<script>
+
+    <script>
     const { createApp, ref, computed, onMounted } = Vue;
 
     createApp({
@@ -371,7 +372,7 @@
             // Hifadhi ya siri ya akaunti (Local Workspace Memory)
             const registeredUser = ref({ name: '', email: '', password: '' });
             
-            // TOKEN YA MAJARIBIO (Kama ni invalid, mfumo utaswitch kwenda simulation badala ya kukwama)
+            // TOKEN YA DERIV HALISI ILIYOSAFISHWA
             const derivToken = ref("pat_ed586a9ab1ede610dca73cad956da3af12e8027bf2cf3e5a72797dcd9f9e27c1");  
             const derivAppId = ref("1089"); 
             let derivSocket = null;      
@@ -424,10 +425,10 @@
                 }, 45);
             };
 
-            // START OFFLINE SIMULATION ENGINE (Inatumika kama Token ikifeli)
+            // START OFFLINE SIMULATION ENGINE (Inajirun token isipofanya kazi)
             const startOfflineSimulation = () => {
                 if (simulationInterval) clearInterval(simulationInterval);
-                balance.value = 10000.00; // Mpe demo virtual balance
+                balance.value = 10000.00; 
                 
                 simulationInterval = setInterval(() => {
                     chartSpotPrice.value = parseFloat((chartSpotPrice.value + (Math.random() * 2 - 1)).toFixed(2));
@@ -436,9 +437,6 @@
                     
                     const randomDigit = Math.floor(Math.random() * 10);
                     digitStats.value[randomDigit] = (digitStats.value[randomDigit] || 0) + 1;
-                    if (digitStats.value[randomDigit] > 30) {
-                        digitStats.value = { 0: 8, 1: 11, 2: 9, 3: 7, 4: 10, 5: 12, 6: 6, 7: 14, 8: 8, 9: 10 };
-                    }
                     
                     signals.value.forEach(sig => {
                         let step = (Math.random() * 0.8 - 0.4);
@@ -447,45 +445,45 @@
                 }, 1000);
             };
 
-            // LIVE DERIV WEBSOCKET HANDSHAKE CORE
+            // LIVE DERIV WEBSOCKET HANDSHAKE CORE (Kurekebisha hitilafu ya payload)
             const connectToDerivAPI = (token, appId) => {
                 toastMessage.value = "Establishing handshake with Deriv WebSocket server...";
                 
-                derivSocket = new WebSocket("wss://ws.derivws.com/websockets/v3?app_id=" + appId);
+                // Kujenga URL salama kwa uandishi sahihi wa JavaScript
+                const socketUrl = "wss://ws.derivws.com/websockets/v3?app_id=" + appId;
+                derivSocket = new WebSocket(socketUrl);
 
                 derivSocket.onopen = () => {
                     toastMessage.value = "Connected! Authorizing trading terminal token...";
+                    // Tuma ombi la Authorization rasmi
                     derivSocket.send(JSON.stringify({ authorize: token }));
                 };
 
                 derivSocket.onmessage = (msg) => {
                     const response = JSON.parse(msg.data);
 
+                    // Angalia makosa yoyote kutoka kwa seva ya Deriv
+                    if (response.error) {
+                        toastMessage.value = "✕ DERIV API ERROR: " + response.error.message;
+                        setTimeout(() => {
+                            startOfflineSimulation();
+                            toastMessage.value = "✓ Running on Sandbox Engine Mode.";
+                        }, 2000);
+                        return;
+                    }
+
                     if (response.msg_type === 'authorize') {
-                        if (response.error) {
-                            // SULUHISHO: Token ikiwa mbovu, usikwame! Badili kwenda Simulation Mode
-                            toastMessage.value = "✕ DERIV ERROR: Invalid Token. Launching Sandbox Mode...";
-                            if (derivSocket) derivSocket.close();
-                            
-                            setTimeout(() => {
-                                startOfflineSimulation();
-                                toastMessage.value = "✓ Sandbox Engine Activated Successfully.";
-                            }, 1500);
-                            return;
-                        }
-                        
-                        if (response.authorize.balance) {
+                        if (response.authorize && response.authorize.balance) {
                             balance.value = parseFloat(response.authorize.balance);
                         }
-                        
                         toastMessage.value = "✓ Authorized! Subscribing to Volatility 75 Live Ticks...";
                         derivSocket.send(JSON.stringify({ ticks: 'R_75' }));
                     }
 
                     if (response.msg_type === 'tick') {
-                        if (response.error) return;
-
                         const tick = response.tick;
+                        if (!tick) return;
+                        
                         chartSpotPrice.value = tick.quote;
 
                         chartPoints.value.shift();
@@ -507,10 +505,12 @@
                 };
 
                 derivSocket.onerror = (err) => {
-                    toastMessage.value = "✕ Connection error. Falling back to Sandbox...";
+                    toastMessage.value = "✕ Connection failed. Moving to Sandbox Mode...";
                     startOfflineSimulation();
                 };
             };
+
+            const authForm = ref({ name: '', email: '', password: '' });
 
             const handleAuthSubmit = () => {
                 if (isRegistering.value) {
@@ -527,7 +527,7 @@
                     }, 1500);
                 } else {
                     isAuthenticated.value = true;
-                    // Jaribu kuunganisha Deriv API
+                    // Run real connection core na token mpya
                     connectToDerivAPI(derivToken.value, derivAppId.value);
                 }
             };
@@ -571,9 +571,8 @@
             };
 
             const openModal = (type) => { activeModal.value = type; };
-            const authForm = ref({ name: '', email: '', password: '' });
 
-            // LIFE CYCLE NA USALAMA WA LOCKOUT
+            // LIFECYCLE EVENT IKIWA NA USALAMA WA KILL-SWITCH
             onMounted(() => {
                 const deadline = new Date("2026-06-02"); 
                 const today = new Date();
@@ -599,7 +598,7 @@
             };
         }
     }).mount('#app');
-</script>
+    </script>
 </body>
 </html>
                               
