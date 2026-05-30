@@ -8,13 +8,13 @@
         body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow: hidden; height: 100vh; }
 
         /* Login Screen */
-        #login-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; }
+        #login-screen { display: none; flex-direction: column; justify-content: center; align-items: center; height: 100vh; }
         .login-box { background: var(--panel); padding: 30px; border-radius: 12px; width: 300px; text-align: center; }
         input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; box-sizing: border-box; }
         button { width: 100%; padding: 12px; background: var(--accent); border: none; color: white; cursor: pointer; border-radius: 5px; font-weight: bold; }
 
         /* Boot Screen */
-        #boot-screen { display: none; flex-direction: column; justify-content: center; align-items: center; height: 100vh; }
+        #boot-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; }
         .brain-logo { width: 200px; margin-bottom: 20px; }
         #progress-bar { width: 300px; height: 6px; background: var(--panel); border-radius: 3px; }
         #progress { width: 0%; height: 100%; background: var(--accent); transition: width 0.1s; }
@@ -68,6 +68,10 @@
     </div>
 
     <script>
+        // Embedded Credentials
+        const EMBEDDED_APP_ID = "33egwMbRPIkA8tEiGipbD";
+        const EMBEDDED_API_TOKEN = "pat_d32c84bf7f345e9b2c004b5b8e24b4f7ec68b4273ff52b80c1c576ea04098b71";
+
         let ws;
         let isAuthorized = false;
 
@@ -96,18 +100,18 @@
             }
         }
 
-        function login() {
-            const appId = document.getElementById('app-id').value;
-            const token = document.getElementById('api-token').value;
-            if (!appId || !token) return alert("Enter ID and Token");
+        function login(appId = EMBEDDED_APP_ID, token = EMBEDDED_API_TOKEN) {
+            const finalAppId = appId || document.getElementById('app-id').value;
+            const finalToken = token || document.getElementById('api-token').value;
+            if (!finalAppId || !finalToken) return alert("Enter ID and Token");
 
             try {
                 // Verify login with Deriv
-                ws = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${appId}`);
+                ws = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${finalAppId}`);
                 
                 ws.onopen = () => {
                     console.log("WebSocket connected");
-                    ws.send(JSON.stringify({ authorize: token }));
+                    ws.send(JSON.stringify({ authorize: finalToken }));
                 };
                 
                 ws.onmessage = handleWebSocketMessage;
@@ -152,6 +156,11 @@
             document.getElementById(id).classList.add('active');
             tab.classList.add('active');
         }
+
+        // Auto-login on page load
+        window.addEventListener('load', () => {
+            login(EMBEDDED_APP_ID, EMBEDDED_API_TOKEN);
+        });
     </script>
 </body>
 </html>
