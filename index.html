@@ -52,7 +52,7 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe
 
 <script>
 const DERIV_APP_ID = "33egwMbRPIkA8tEiGipbD"; 
-const DERIV_API_TOKEN = "PASTE_NEW_TOKEN_HERE"; // Revoke old token and generate new one at app.deriv.com/account/api-token
+const DERIV_API_TOKEN = "PASTE_NEW_TOKEN_HERE"; // Your old token is revoked. Make new at app.deriv.com/account/api-token
 
 let ws;
 let isAuthorized = false;
@@ -81,7 +81,7 @@ function handleWebSocketMessage(msg) {
     }
 
     if (res.msg_type === 'balance') {
-        // FIXED: closed string, correct concatenation, correct Deriv balance object
+        // FIXED LINE - closed string, correct concatenation
         document.getElementById('balance-display').innerText = res.balance + " + res.balance.currency;
     }
 
@@ -134,4 +134,4 @@ function showPage(id, tab) {
 window.addEventListener('load', connectToDeriv);
 </script>
 </body>
-    </html>
+</html>
