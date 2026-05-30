@@ -3,61 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TraderScheme Workspace</title>
+    <title>TraderScheme Pro Workspace</title>
     <style>
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #0b1426; color: white; height: 100vh; overflow: hidden; }
-
-        /* Loading Screen */
-        #boot-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b1426; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
-        .brain-icon { font-size: 80px; margin-bottom: 20px; }
-        #progress-bar { width: 80%; height: 8px; background: #1a2942; border-radius: 4px; margin-top: 20px; overflow: hidden; }
-        #progress { width: 0%; height: 100%; background: #62a3ff; transition: width 0.1s; }
-
-        /* Main Dashboard */
-        .container { padding: 20px; display: none; }
-        .card { background: #1a2942; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        button { padding: 15px; border: none; border-radius: 8px; background: #62a3ff; color: white; font-weight: bold; cursor: pointer; }
+        :root { --bg: #0b1426; --panel: #1a2942; --accent: #62a3ff; --text: #ffffff; --danger: #e74c3c; --success: #2ecc71; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: auto; }
+        .grid-main { display: grid; grid-template-columns: 300px 1fr; gap: 20px; }
+        .card { background: var(--panel); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); margin-bottom: 20px; }
+        h2 { color: var(--accent); font-size: 1.1rem; margin-top: 0; border-bottom: 1px solid #334e68; padding-bottom: 10px; }
+        
+        /* Form Elements */
+        input, select { width: 100%; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #334e68; background: var(--bg); color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; margin-top: 10px; cursor: pointer; background: var(--accent); border: none; border-radius: 6px; color: white; font-weight: bold; }
+        button.stop { background: var(--danger); }
+        
+        /* Logs & Tables */
+        #live-logs { background: #000; height: 300px; overflow-y: scroll; font-family: monospace; font-size: 12px; padding: 10px; border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { text-align: left; padding: 10px; border-bottom: 1px solid #334e68; }
     </style>
 </head>
 <body>
 
-    <div id="boot-screen">
-        <div class="brain-icon">🧠</div>
-        <h3>TraderScheme Trading Workspace</h3>
-        <p>Initializing D-Bot...</p>
-        <div id="progress-bar"><div id="progress"></div></div>
-        <p style="margin-top:10px">Boot sequence <span id="percent">0</span>%</p>
-    </div>
+<div class="container">
+    <div class="grid-main">
+        <div>
+            <div class="card">
+                <h2>Bot Settings</h2>
+                <label>Strategy</label>
+                <select id="strategy"><option>Martingale</option><option>D'Alembert</option></select>
+                <label>Initial Stake</label> <input type="number" id="stake" value="0.35">
+                <label>Stop Loss</label> <input type="number" id="sl" value="10.00">
+                <label>Take Profit</label> <input type="number" id="tp" value="5.00">
+                <button onclick="toggleBot()">START BOT</button>
+                <button class="stop" onclick="stopBot()">STOP BOT</button>
+            </div>
+            <div class="card">
+                <h2>Account</h2>
+                <div style="text-align: center; font-size: 1.5rem;" id="balance">0.00 USD</div>
+            </div>
+        </div>
 
-    <div class="container" id="dashboard">
-        <h1>Dashboard</h1>
-        <div class="card">
-            <p>Welcome back, Trader.</p>
-            <div class="btn-group">
-                <button>LOAD BOT</button>
-                <button>MANUAL TRADING</button>
-                <button>SPEED BOT</button>
-                <button>ANALYSIS TOOL</button>
+        <div>
+            <div class="card">
+                <h2>Live Signal Monitor</h2>
+                <div id="live-logs">System initialized...</div>
+            </div>
+            <div class="card">
+                <h2>Trade History</h2>
+                <table>
+                    <thead><tr><th>ID</th><th>Type</th><th>Result</th><th>Profit</th></tr></thead>
+                    <tbody id="history-body"></tbody>
+                </table>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        // Boot Sequence Simulation
-        let p = 0;
-        const progress = document.getElementById('progress');
-        const percent = document.getElementById('percent');
-        const interval = setInterval(() => {
-            p += 2;
-            progress.style.width = p + "%";
-            percent.innerText = p;
-            if (p >= 100) {
-                clearInterval(interval);
-                document.getElementById('boot-screen').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'block';
-            }
-        }, 50);
-    </script>
+<script>
+    function toggleBot() {
+        log("Bot activated using Martingale strategy.");
+    }
+    function stopBot() {
+        log("Bot stopped by user.");
+    }
+    function log(msg) {
+        const logs = document.getElementById('live-logs');
+        logs.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+        logs.scrollTop = logs.scrollHeight;
+    }
+    // Simulation
+    setInterval(() => {
+        if(Math.random() > 0.8) {
+            log("Trade placed: CALL | Result: WIN | Profit: +0.30");
+            const tbody = document.getElementById('history-body');
+            tbody.innerHTML = `<tr><td>${Math.floor(Math.random()*999)}</td><td>CALL</td><td style="color:var(--success)">WIN</td><td>+0.30</td></tr>` + tbody.innerHTML;
+        }
+    }, 4000);
+</script>
 </body>
-</html>
+    </html>
