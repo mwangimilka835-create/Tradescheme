@@ -9,130 +9,395 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #020617; font-family: system-ui, -apple-system, sans-serif; }
-        [v-cloak] { display: none; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
     </style>
 </head>
-<body class="text-slate-200 antialiased">
+<body class="text-slate-200 antialiased selection:bg-amber-500 selection:text-slate-900">
 
-<div id="app" v-cloak>
-    <div v-if="isLoading" class="fixed inset-0 bg-[#020617] z-50 flex flex-col items-center justify-center p-6">
-        <div class="w-24 h-24 mb-6 relative flex items-center justify-center">
-            <div class="absolute inset-0 rounded-full border-4 border-slate-800"></div>
-            <div class="absolute inset-0 rounded-full border-4 border-t-amber-500 animate-spin"></div>
-            <span class="text-amber-500 font-bold text-sm">{{ bootPercent }}%</span>
+    <div id="app" v-cloak>
+        <div v-if="isLoading" class="fixed inset-0 bg-[#020617] z-50 flex flex-col items-center justify-center p-6">
+            <div class="relative w-24 h-24 mb-6">
+                <div class="absolute inset-0 rounded-full border-4 border-slate-800"></div>
+                <div class="absolute inset-0 rounded-full border-4 border-t-amber-500 animate-spin"></div>
+                <div class="absolute inset-0 flex items-center justify-center font-bold text-sm text-amber-500">
+                    {{ bootPercent }}%
+                </div>
+            </div>
+            <p class="text-slate-400 text-xs font-mono tracking-wider animate-pulse">{{ loadingStatusText }}</p>
         </div>
-        <p class="text-slate-400 text-xs font-mono animate-pulse">{{ loadingStatusText }}</p>
-    </div>
 
-    <div v-else-if="!isAuthenticated" class="min-h-screen flex items-center justify-center p-4">
-        <div class="w-full max-w-md bg-[#0f172a] border border-slate-800 rounded-2xl p-8 shadow-2xl">
-            <h1 class="text-2xl font-black text-white text-center mb-6">TraderWin<span class="text-amber-500">.com</span></h1>
-            <form @submit.prevent="handleAuthSubmit" class="space-y-4">
-                <input v-if="isRegistering" type="text" v-model="authForm.name" placeholder="Full Name" class="w-full bg-[#020617] border border-slate-800 p-3 rounded-xl text-sm outline-none focus:border-amber-500 text-white">
-                <input type="email" v-model="authForm.email" placeholder="Email Address" required class="w-full bg-[#020617] border border-slate-800 p-3 rounded-xl text-sm outline-none focus:border-amber-500 text-white">
-                <input type="password" v-model="authForm.password" placeholder="Password" required class="w-full bg-[#020617] border border-slate-800 p-3 rounded-xl text-sm outline-none focus:border-amber-500 text-white">
-                <button type="submit" class="w-full bg-amber-500 text-slate-950 font-bold py-3 rounded-xl text-xs uppercase hover:bg-amber-600 transition">
-                    {{ isRegistering ? 'Create License Profile' : 'Authenticate License' }}
+        <div v-else-if="!isAuthenticated" class="min-h-screen flex flex-col items-center justify-center p-4 bg-[#020617]">
+            <div class="w-full max-w-md bg-[#0f172a] border border-slate-800 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-yellow-500"></div>
+                
+                <div class="text-center mb-8">
+                    <h1 class="text-2xl font-black tracking-tight text-white">TraderWin<span class="text-amber-500">.com</span></h1>
+                    <p class="text-slate-400 text-xs mt-1">Access secure trading workspace terminal</p>
+                </div>
+
+                <form @submit.prevent="handleAuthSubmit" class="space-y-4">
+                    <div v-if="isRegistering">
+                        <label class="block text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1.5">Full Name</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                            <input type="text" v-model="authForm.name" required class="w-full bg-[#020617] border border-slate-800 focus:border-amber-500/50 rounded-xl pl-10 pr-4 py-3 text-sm text-white outline-none transition" placeholder="John Doe">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1.5">Email Address</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                            <input type="email" v-model="authForm.email" required class="w-full bg-[#020617] border border-slate-800 focus:border-amber-500/50 rounded-xl pl-10 pr-4 py-3 text-sm text-white outline-none transition" placeholder="mwangimilka835@gmail.com">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1.5">Password</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                            <input type="password" v-model="authForm.password" required class="w-full bg-[#020617] border border-slate-800 focus:border-amber-500/50 rounded-xl pl-10 pr-4 py-3 text-sm text-white outline-none transition" placeholder="•••••">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-3 px-4 rounded-xl text-xs uppercase tracking-wider shadow-lg transition active:scale-[0.98] mt-2">
+                        {{ isRegistering ? 'Create License Profile' : 'Authenticate License' }}
+                    </button>
+                </form>
+
+                <div class="text-center mt-6">
+                    <button @click="isRegistering = !isRegistering" class="text-xs text-slate-400 hover:text-amber-500 transition">
+                        {{ isRegistering ? 'Already registered? Login here' : 'First time running this terminal? Sign up now' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div v-else class="min-h-screen flex flex-col bg-[#020617]">
+            <header class="bg-[#0f172a] border-b border-slate-800 px-4 py-3 flex justify-between items-center sticky top-0 z-40">
+                <div class="flex items-center space-x-3">
+                    <span class="text-lg font-black text-white tracking-tight">TraderWin <span class="bg-amber-500 text-slate-950 text-[9px] font-bold px-1.5 py-0.5 rounded ml-1">DEMO</span></span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <div class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Virtual Balance</div>
+                        <div class="text-emerald-400 font-mono font-bold text-sm">${{ balance.toFixed(2) }} <span class="text-[10px] text-slate-400">USD</span></div>
+                    </div>
+                    <button @click="logout" class="bg-slate-800 hover:bg-red-500/20 text-slate-400 hover:text-red-400 p-2 rounded-xl border border-slate-700 hover:border-red-500/30 transition">
+                        <i class="fa-solid fa-power-off text-xs"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div class="bg-[#0f172a]/50 border-b border-slate-800 flex overflow-x-auto custom-scrollbar sticky top-[53px] z-30">
+                <button v-for="tab in navigationTabs" :key="tab" @click="activeTab = tab" :class="activeTab === tab ? 'border-amber-500 text-amber-500 bg-amber-500/5' : 'border-transparent text-slate-400 hover:text-slate-200'" class="px-4 py-3 text-xs font-bold border-b-2 whitespace-nowrap transition">
+                    {{ tab }}
                 </button>
-            </form>
-            <button @click="isRegistering = !isRegistering" class="w-full text-center mt-4 text-xs text-slate-400 hover:text-amber-500">
-                {{ isRegistering ? 'Login here' : 'Sign up now' }}
-            </button>
+            </div>
+
+            <main class="flex-1 p-4 max-w-5xl w-full mx-auto space-y-4">
+                
+                <div v-if="activeTab === 'Speedbot'" class="space-y-4">
+                    <div class="bg-[#0f172a] border border-slate-800 rounded-xl p-4 shadow-xl">
+                        <div class="flex justify-between items-center mb-3">
+                            <h2 class="text-xs uppercase tracking-wider text-slate-400 font-bold">Live Volatility Stream</h2>
+                            <span class="text-xs font-mono font-bold text-amber-500">${{ chartSpotPrice.toFixed(2) }}</span>
+                        </div>
+                        <div class="h-20 flex items-end justify-between gap-1 bg-[#020617] p-2 rounded-lg border border-slate-800/80">
+                            <div v-for="(pt, idx) in chartPoints" :key="idx" :style="{ height: pt + '%' }" class="flex-1 bg-gradient-to-t from-amber-500/20 to-amber-500 rounded-sm min-h-[4px] transition-all duration-300"></div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div v-for="sig in filteredSignals" :key="sig.id" class="bg-[#0f172a] border border-slate-800 rounded-xl overflow-hidden shadow-lg">
+                            <div class="p-3 flex justify-between items-center bg-slate-900/40">
+                                <div>
+                                    <h3 class="text-sm font-bold text-white">{{ sig.asset }}</h3>
+                                    <span class="text-[10px] uppercase font-bold text-slate-400">Confidence Match: </span>
+                                    <span class="text-[10px] font-mono font-bold text-emerald-400">{{ sig.confidence }}%</span>
+                                </div>
+                                <button @click="executeVirtualTrade(sig)" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs px-4 py-2 rounded-lg flex items-center space-x-1.5 transition active:scale-95">
+                                    <i class="fa-solid fa-circle-play"></i>
+                                    <span>Run Target</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-else class="bg-[#0f172a] border border-slate-800 rounded-xl p-8 text-center">
+                    <i class="fa-solid fa-sliders text-slate-600 text-3xl mb-3"></i>
+                    <h3 class="text-sm font-bold text-white mb-1">{{ activeTab }} Module Offline</h3>
+                    <p class="text-slate-400 text-xs max-w-xs mx-auto">This functional strategy workspace is locked until terminal authentication completes a legal handshake.</p>
+                </div>
+            </main>
+
+            <footer class="bg-[#0f172a] border-t border-slate-800 px-4 py-2 text-center text-[10px] text-slate-500 flex justify-between items-center mt-auto">
+                <span>© 2026 TraderWin Engine</span>
+                <div class="space-x-3">
+                    <button @click="openModal('TERMS')" class="hover:text-slate-300">Terms of Service</button>
+                    <button @click="openModal('RISK')" class="hover:text-slate-300">Risk Disclosure</button>
+                </div>
+            </footer>
+        </div>
+
+        <div v-if="activeModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="w-full max-w-md bg-[#0f172a] border border-slate-800 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+                    <h2 class="text-xs uppercase tracking-wider text-amber-500 font-bold font-mono">
+                        {{ activeModal === 'TERMS' ? 'TERMS OF SERVICE CORE' : 'FINANCIAL RISK DISCLOSURE' }}
+                    </h2>
+                    <button @click="openModal(null)" class="text-slate-500 hover:text-white transition">
+                        <i class="fa-solid fa-xmark text-sm"></i>
+                    </button>
+                </div>
+                <div class="p-6 space-y-4 max-h-[60vh] overflow-y-auto text-xs text-slate-400 custom-scrollbar leading-relaxed">
+                    <div class="space-y-2">
+                        <h4 class="font-bold text-white text-slate-200">1. Phase 1 Sandbox Parameters</h4>
+                        <p>TraderWin.com operates exclusively as an educational simulation platform in Phase 1. All performance algorithms, financial balances, stakes, tracking indices, payouts, and interface records are completely virtual.</p>
+                    </div>
+                    <div class="space-y-2">
+                        <h4 class="font-bold text-red-400">High Risk Speculation Warning</h4>
+                        <p>Trading Synthetic Indices involves intense volatility risk driven by cryptographic mathematical structures. Movements are extreme and instant. Past simulated yields do not map directly to live market safety limits.</p>
+                    </div>
+                </div>
+                <div class="p-4 bg-slate-900/50 border-t border-slate-800 flex justify-end">
+                    <button @click="openModal(null)" class="bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition">
+                        I Understand
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="toastMessage" class="fixed bottom-4 left-4 right-4 md:left-auto md:w-80 bg-slate-900 border border-amber-500/30 text-amber-400 text-xs px-4 py-3.5 rounded-xl shadow-2xl flex items-center space-x-3 z-50 font-mono">
+            <div class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></div>
+            <span class="flex-1">{{ toastMessage }}</span>
         </div>
     </div>
 
-    <div v-else class="min-h-screen bg-[#020617]">
-        <header class="bg-[#0f172a] border-b border-slate-800 px-4 py-3 flex justify-between items-center">
-            <span class="text-lg font-black text-white">TraderWin</span>
-            <div class="text-right">
-                <div class="text-[9px] text-slate-400">VIRTUAL BALANCE</div>
-                <div class="text-emerald-400 font-mono font-bold">${{ balance.toFixed(2) }}</div>
-            </div>
-        </header>
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
 
-        <main class="p-4 max-w-5xl mx-auto space-y-4">
-            <div class="bg-[#0f172a] border border-slate-800 rounded-xl p-4">
-                <div class="flex justify-between mb-3">
-                    <h2 class="text-xs text-slate-400 font-bold uppercase">Live Volatility Stream</h2>
-                    <span class="text-amber-500 font-mono font-bold">${{ chartSpotPrice.toFixed(2) }}</span>
-                </div>
-                <div class="h-20 flex items-end gap-1 bg-[#020617] p-2 rounded-lg">
-                    <div v-for="pt in chartPoints" :style="{ height: pt + '%' }" class="flex-1 bg-amber-500/30 rounded-sm"></div>
-                </div>
-            </div>
+        createApp({
+            setup() {
+                const isLoading = ref(true);
+                const bootPercent = ref(0);
+                const loadingStatusText = ref("Initializing TraderWin Terminal...");
+                const isAuthenticated = ref(false);
+                const isRegistering = ref(false);
+                const activeTab = ref("Speedbot");
 
-            <div v-for="sig in signals" :key="sig.id" class="bg-[#0f172a] border border-slate-800 rounded-xl p-4 flex justify-between items-center">
-                <div>
-                    <h3 class="font-bold">{{ sig.asset }}</h3>
-                    <p class="text-xs text-slate-400">Confidence: <span class="text-emerald-400">{{ sig.confidence }}%</span></p>
-                </div>
-                <button @click="executeVirtualTrade(sig)" class="bg-amber-500 text-slate-950 px-4 py-2 rounded-lg text-xs font-bold uppercase">Run</button>
-            </div>
-        </main>
-    </div>
+                const balance = ref(0.00);
+                const toastMessage = ref("");
+                const activeModal = ref("TERMS"); 
+                const searchQuery = ref("");
 
-    <div v-if="activeModal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-        <div class="w-full max-w-md bg-[#0f172a] border border-slate-800 rounded-2xl p-6">
-            <h2 class="text-amber-500 font-bold mb-4">
-                <span v-if="activeModal === 'TERMS'">TERMS OF SERVICE</span>
-                <span v-else>RISK DISCLOSURE</span>
-            </h2>
-            <p class="text-xs text-slate-400 mb-6">TraderWin.com operates exclusively as an educational simulation platform.</p>
-            <button @click="activeModal = null" class="w-full bg-slate-800 p-2 rounded-xl text-white font-bold">I Understand</button>
-        </div>
-    </div>
+                const chartSpotPrice = ref(2450.50);
+                const chartPoints = ref([45, 32, 56, 41, 65, 48, 39, 52, 61, 44, 50, 38, 55, 42, 59]);
+                const digitStats = ref({ 0: 8, 1: 11, 2: 9, 3: 7, 4: 10, 5: 12, 6: 6, 7: 14, 8: 8, 9: 10 });
 
-    <div v-if="toastMessage" class="fixed bottom-4 left-4 right-4 bg-slate-900 border border-amber-500/30 text-amber-400 text-xs px-4 py-3 rounded-xl z-50">
-        {{ toastMessage }}
-    </div>
-</div>
+                const registeredUser = ref({ name: '', email: '', password: '' });
+                
+                // FIXED TOKEN STRING FOR DIRECT WS AUTHORIZATION
+                const derivToken = ref("pat_ed586a9ab1ede610dca73cad956da3af12e8027bf2cf3e5a72797dcd9f9e27c1");  
+                const derivAppId = ref("1089"); 
+                let derivSocket = null;      
+                let simulationInterval = null;
 
-<script>
-    const { createApp, ref, onMounted } = Vue;
-    createApp({
-        setup() {
-            const isLoading = ref(true);
-            const bootPercent = ref(0);
-            const loadingStatusText = ref("Initializing...");
-            const isAuthenticated = ref(false);
-            const isRegistering = ref(false);
-            const balance = ref(10000.00);
-            const toastMessage = ref("");
-            const activeModal = ref("TERMS");
-            const chartSpotPrice = ref(2450.50);
-            const chartPoints = ref([45, 32, 56, 41, 65, 48, 39, 52]);
-            const signals = ref([
-                { id: 1, asset: "Volatility 75", confidence: 51.4 },
-                { id: 2, asset: "Volatility 100", confidence: 47.9 }
-            ]);
+                const navigationTabs = [
+                    "Speedbot", "Automated", "Chart", "Analysis Tools", 
+                    "Dashboard", "Bot Builder", "Manual Trader", "Apex Bot", 
+                    "Copy Trader", "Free Bots"
+                ];
 
-            const executeBootSequence = () => {
-                let interval = setInterval(() => {
-                    if (bootPercent.value < 100) bootPercent.value += 10;
-                    else { clearInterval(interval); isLoading.value = false; }
-                }, 100);
-            };
+                const signals = ref([
+                    { id: 101, asset: "Volatility 50 Index", prediction: "OVER 4", confidence: 49.2, isSlow: false, showDetails: false, statPercent: "58.3%", mostDigit: 5, leastDigit: 4 },
+                    { id: 102, asset: "Volatility 75 Index", prediction: "EVEN", confidence: 51.4, isSlow: true, showDetails: false, statPercent: "56.7%", mostDigit: 3, leastDigit: 7 },
+                    { id: 103, asset: "Volatility 100 Index", prediction: "OVER 4", confidence: 47.9, isSlow: false, showDetails: false, statPercent: "57.5%", mostDigit: 4, leastDigit: 7 }
+                ]);
+
+                const filteredSignals = computed(() => {
+                    return signals.value.filter(sig => 
+                        sig.asset.toLowerCase().includes(searchQuery.value.toLowerCase())
+                    );
+                });
+
+                const executeBootSequence = () => {
+                    const logs = [
+                        "Initializing TraderWin System Core...",
+                        "Mapping Horizontal Navigation Marquees...",
+                        "Buffering Phase 1 Sandbox Environments...",
+                        "System Terminal Secured!"
+                    ];
+
+                    const interval = setInterval(() => {
+                        if (bootPercent.value < 100) {
+                            bootPercent.value += Math.floor(Math.random() * 6) + 3;
+                            if (bootPercent.value > 100) bootPercent.value = 100;
+
+                            if (bootPercent.value < 25) loadingStatusText.value = logs[0];
+                            else if (bootPercent.value < 55) loadingStatusText.value = logs[1];
+                            else if (bootPercent.value < 85) loadingStatusText.value = logs[2];
+                            else loadingStatusText.value = logs[3];
+                        } else {
+                            clearInterval(interval);
+                            setTimeout(() => {
+                                isLoading.value = false;
+                            }, 500);
+                        }
+                    }, 45);
+                };
+
+                const startOfflineSimulation = () => {
+                    if (simulationInterval) clearInterval(simulationInterval);
+                    balance.value = 10000.00; 
+                    
+                    simulationInterval = setInterval(() => {
+                        chartSpotPrice.value = parseFloat((chartSpotPrice.value + (Math.random() * 2 - 1)).toFixed(2));
+                        chartPoints.value.shift();
+                        chartPoints.value.push(Math.floor(Math.random() * 60) + 20);
+                        
+                        signals.value.forEach(sig => {
+                            let step = (Math.random() * 0.8 - 0.4);
+                            sig.confidence = parseFloat((sig.confidence + step).toFixed(1));
+                        });
+                    }, 1000);
+                };
+
+                // REWRITTEN WEBSOCKET ENGINE WITH DIRECT TOKEN CALL
+                const connectToDerivAPI = () => {
+                    toastMessage.value = "Establishing handshake with Deriv WebSocket server...";
+                    
+                    const socketUrl = "wss://ws.derivws.com/websockets/v3?app_id=" + derivAppId.value;
+                    derivSocket = new WebSocket(socketUrl);
+
+                    derivSocket.onopen = () => {
+                        toastMessage.value = "Connected! Authorizing trading terminal token...";
+                        // Force sending exact token string safely
+                        derivSocket.send(JSON.stringify({ authorize: "pat_ed586a9ab1ede610dca73cad956da3af12e8027bf2cf3e5a72797dcd9f9e27c1" }));
+                    };
+
+                    derivSocket.onmessage = (msg) => {
+                        const response = JSON.parse(msg.data);
+
+                        if (response.error) {
+                            toastMessage.value = "✕ DERIV API ERROR: " + response.error.message;
+                            setTimeout(() => {
+                                startOfflineSimulation();
+                                toastMessage.value = "✓ Sandbox Engine Mode Enabled.";
+                            }, 2000);
+                            return;
+                        }
+
+                        if (response.msg_type === 'authorize') {
+                            if (response.authorize && response.authorize.balance) {
+                                balance.value = parseFloat(response.authorize.balance);
+                            }
+                            toastMessage.value = "✓ Authorized! Subscribing to Volatility 75 Live Ticks...";
+                            derivSocket.send(JSON.stringify({ ticks: 'R_75' }));
+                        }
+
+                        if (response.msg_type === 'tick') {
+                            const tick = response.tick;
+                            if (!tick) return;
+                            
+                            chartSpotPrice.value = tick.quote;
+                            chartPoints.value.shift();
+                            const simulatedHeight = Math.floor((tick.quote % 10) * 10);
+                            chartPoints.value.push(simulatedHeight > 0 ? simulatedHeight : 40);
+
+                            signals.value.forEach(sig => {
+                                let step = (Math.random() * 0.8 - 0.4);
+                                sig.confidence = parseFloat((sig.confidence + step).toFixed(1));
+                            });
+                        }
+                   // Authentication Handling Form
+            const authForm = ref({ name: '', email: '', password: '' });
 
             const handleAuthSubmit = () => {
                 if (isRegistering.value) {
-                    isRegistering.value = false;
-                    toastMessage.value = "Profile created successfully!";
+                    registeredUser.value = { 
+                        name: authForm.value.name, 
+                        email: authForm.value.email, 
+                        password: authForm.value.password 
+                    };
+                    toastMessage.value = "Profile saved! Syncing secure terminal credentials...";
+                    setTimeout(() => {
+                        isRegistering.value = false;
+                        authForm.value.password = ""; 
+                        toastMessage.value = "";
+                    }, 1500);
                 } else {
                     isAuthenticated.value = true;
+                    connectToDerivAPI();
                 }
             };
 
-            const executeVirtualTrade = (sig) => {
-                toastMessage.value = "Executed! Contract placed via " + sig.asset;
-                setTimeout(() => toastMessage.value = "", 3000);
+            const logout = () => {
+                if (derivSocket) derivSocket.close();
+                if (simulationInterval) clearInterval(simulationInterval);
+                isAuthenticated.value = false;
+                isRegistering.value = false; 
+                authForm.value.email = "";
+                authForm.value.password = "";
+                toastMessage.value = "Session terminated safely.";
+                setTimeout(() => { toastMessage.value = ""; }, 2000);
             };
 
-            onMounted(executeBootSequence);
+            const executeVirtualTrade = (signal) => {
+                const mode = signal.isSlow ? 'SLOW' : 'FAST';
+                toastMessage.value = "[" + mode + " MODE] Synchronizing contract parameters via Deriv Core...";
+                
+                setTimeout(() => {
+                    const stake = 15.00;
+                    balance.value -= stake;
+                    toastMessage.value = "Executed! Contract placed via " + signal.asset + ". Payout pending...";
+                    
+                    setTimeout(() => {
+                        if (Math.random() > 0.46) {
+                            const winAmt = stake * 1.95;
+                            balance.value += winAmt;
+                            toastMessage.value = "✓ SUCCESSFUL RECOVERY! +$" + winAmt.toFixed(2);
+                        } else {
+                            toastMessage.value = "✕ LOSS! Virtual stake contract closed out index bounds.";
+                        }
+                        setTimeout(() => { toastMessage.value = ""; }, 3000);
+                    }, 2000);
+                }, 1500);
+            };
 
-            return { isLoading, bootPercent, loadingStatusText, isAuthenticated, isRegistering, handleAuthSubmit, balance, toastMessage, activeModal, chartSpotPrice, chartPoints, signals, executeVirtualTrade, authForm: ref({name: '', email: '', password: ''}) };
+            const triggerGlobalAction = (msg) => {
+                toastMessage.value = msg;
+                setTimeout(() => { toastMessage.value = ""; }, 2500);
+            };
+
+            const openModal = (type) => { activeModal.value = type; };
+
+            onMounted(() => {
+                const deadline = new Date("2026-06-02"); 
+                const today = new Date();
+                
+                if (today > deadline) {
+                    document.getElementById("app").innerHTML = `
+                        <div style="background:#020617; color:#ef4444; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; font-family:sans-serif; padding:20px;">
+                            <h1 style="font-size:26px; font-weight:900; margin-bottom:10px; tracking-tight: -0.05em;">WORKSPACE LOCKOUT</h1>
+                            <p style="color:#64748b; font-size:13px; max-w-xs; line-height:1.6;">Terminal secure core license signature has expired. Please contact the administrator to sync workspace parameters.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                executeBootSequence();
+            });
+
+            return {
+                isLoading, bootPercent, loadingStatusText,
+                isAuthenticated, isRegistering, authForm, handleAuthSubmit, logout,
+                activeTab, navigationTabs, signals, searchQuery, filteredSignals,
+                balance, toastMessage, activeModal, chartSpotPrice, chartPoints, digitStats,
+                executeVirtualTrade, triggerGlobalAction, openModal, derivToken, derivAppId
+            };
         }
     }).mount('#app');
 </script>
