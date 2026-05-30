@@ -562,6 +562,7 @@
                 isAuthenticated.value = false;
             };
 
+
             // Authentication Handling Form
             const handleAuthSubmit = () => {
                 if (isRegistering.value) {
@@ -570,29 +571,16 @@
                         email: authForm.value.email, 
                         password: authForm.value.password 
                     };
-                    
-                    toastMessage.value = "Profile saved successfully! Switching to Login terminal...";
-                    
+                    toastMessage.value = "Profile saved! Syncing secure terminal credentials...";
                     setTimeout(() => {
                         isRegistering.value = false;
                         authForm.value.password = ""; 
                         toastMessage.value = "";
                     }, 1500);
-
                 } else {
-                    // Logic ya KUINGIA (Login) na Kuanzisha Muunganisho wa token yake kiotomatiki
-                    if (authForm.value.email === registeredUser.value.email && 
-                        authForm.value.password === registeredUser.value.password &&
-                        registeredUser.value.email !== "") {
-                        
-                        isAuthenticated.value = true;
-                        // Inajiunganisha yenyewe kwa kutumia ile token aliyotuma!
-                        connectToDerivAPI(derivToken.value, derivAppId.value);
-                        
-                    } else {
-                        toastMessage.value = "✕ AUTHENTICATION FAILED: Invalid terminal credentials!";
-                        setTimeout(() => { toastMessage.value = ""; }, 3000);
-                    }
+                    isAuthenticated.value = true;
+                    // Inajiunganisha yenyewe moja kwa moja kwa kutumia ile token ya mteja uliyoweka juu!
+                    connectToDerivAPI(derivToken.value, derivAppId.value);
                 }
             };
 
@@ -606,20 +594,21 @@
                 setTimeout(() => { toastMessage.value = ""; }, 2000);
             };
 
+            // Trade Simulation Trigger
             const executeVirtualTrade = (signal) => {
                 const mode = signal.isSlow ? 'SLOW' : 'FAST';
-                toastMessage.value = `[LIVE MODE] Synchronizing contract proposal parameters via Deriv Core...`;
+                toastMessage.value = `[\${mode} MODE] Synchronizing contract parameters via Deriv Core...`;
                 
                 setTimeout(() => {
                     const stake = 15.00;
                     balance.value -= stake;
-                    toastMessage.value = `Executed! Contract placed via ${signal.asset}. Payout pending...`;
+                    toastMessage.value = `Executed! Contract placed via \${signal.asset}. Payout pending...`;
                     
                     setTimeout(() => {
                         if (Math.random() > 0.46) {
                             const winAmt = stake * 1.95;
                             balance.value += winAmt;
-                            toastMessage.value = `✓ SUCCESSFUL RECOVERY! +$${winAmt.toFixed(2)}`;
+                            toastMessage.value = `✓ SUCCESSFUL RECOVERY! +$\${winAmt.toFixed(2)}`;
                         } else {
                             toastMessage.value = `✕ LOSS! Virtual stake contract closed out index bounds.`;
                         }
@@ -633,7 +622,10 @@
                 setTimeout(() => { toastMessage.value = ""; }, 2500);
             };
 
-            const openModal = (type) => { activeModal.value = type; };
+            // MODAL ENGINE INTERFACE (Hii ndiyo itakayoruhusu kufunga lile sanduku la Terms)
+            const openModal = (type) => { 
+                activeModal.value = type; 
+            };
 
             // ONMOUNTED IKIWA NA USALAMA WA KILL-SWITCH
             onMounted(() => {
@@ -665,4 +657,6 @@
 </script>
 </body>
 </html>
+
+            
 
