@@ -51,9 +51,8 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe
 <div id="error-box" class="error-box"></div>
 
 <script>
-// === PUT YOUR DERIV CREDENTIALS HERE ===
 const DERIV_APP_ID = "33egwMbRPIkA8tEiGipbD"; 
-const DERIV_API_TOKEN = "pat_d32c84bf7f345e9b2c004b5b8e24b4f7ec68b4273ff52b80c1c576ea04098b71"; // Revoke old one and make new at app.deriv.com/account/api-token
+const DERIV_API_TOKEN = "PASTE_NEW_TOKEN_HERE"; // Revoke old token and generate new one at app.deriv.com/account/api-token
 
 let ws;
 let isAuthorized = false;
@@ -65,6 +64,7 @@ function showError(msg) {
     setTimeout(() => box.style.display = 'none', 5000);
     console.error(msg);
 }
+
 function handleWebSocketMessage(msg) {
     const res = JSON.parse(msg.data);
     console.log("WS:", res);
@@ -81,15 +81,14 @@ function handleWebSocketMessage(msg) {
     }
 
     if (res.msg_type === 'balance') {
-        // FIXED: closed string, proper concatenation, correct Deriv balance object
+        // FIXED: closed string, correct concatenation, correct Deriv balance object
         document.getElementById('balance-display').innerText = res.balance + " + res.balance.currency;
     }
 
     if (res.msg_type === 'tick') {
         document.getElementById('price-display').innerText = res.tick.quote;
     }
-    }
-
+}
 
 function connectToDeriv() {
     ws = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${DERIV_APP_ID}`);
