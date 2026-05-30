@@ -2,121 +2,67 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>TraderScheme Workspace</title>
+    <title>TraderScheme Login</title>
     <style>
         :root { --bg: #0b1426; --panel: #1a2942; --accent: #62a3ff; --text: #ffffff; }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow: hidden; height: 100vh; }
-
-        /* Login Screen */
-        #login-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; }
-        .login-box { background: var(--panel); padding: 30px; border-radius: 12px; width: 300px; text-align: center; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        
+        /* Login Box */
+        #login-box { background: var(--panel); padding: 30px; border-radius: 12px; width: 320px; text-align: center; }
         input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: var(--accent); border: none; color: white; cursor: pointer; border-radius: 5px; font-weight: bold; }
-
-        /* Boot Screen */
-        #boot-screen { display: none; flex-direction: column; justify-content: center; align-items: center; height: 100vh; }
-        .brain-logo { width: 200px; margin-bottom: 20px; }
-        #progress-bar { width: 300px; height: 6px; background: var(--panel); border-radius: 3px; }
-        #progress { width: 0%; height: 100%; background: var(--accent); transition: width 0.1s; }
-
-        /* Main UI */
-        #main-ui { display: none; }
-        .nav-bar { background: var(--panel); padding: 15px; display: flex; justify-content: space-between; }
-        .tabs { display: flex; background: var(--bg); margin: 10px; border-radius: 8px; overflow: hidden; }
-        .tab { flex: 1; padding: 12px; text-align: center; background: var(--panel); cursor: pointer; }
-        .tab.active { background: var(--accent); }
-        .page { display: none; padding: 15px; }
-        .page.active { display: block; }
-        .card { background: var(--panel); padding: 20px; border-radius: 8px; margin: 10px; text-align: center; }
+        button { width: 100%; padding: 10px; background: var(--accent); border: none; color: white; cursor: pointer; border-radius: 5px; margin-top: 5px; }
+        
+        /* Hidden UI Sections */
+        #boot-screen, #main-ui { display: none; }
+        
+        /* (Keep your previous CSS for #main-ui and #boot-screen here) */
     </style>
 </head>
 <body>
 
-    <div id="login-screen">
-        <div class="login-box">
-            <h2>TraderScheme Login</h2>
-            <input type="text" id="app-id" placeholder="Enter App ID">
-            <input type="password" id="api-token" placeholder="Enter API Token">
-            <button onclick="login()">LOGIN</button>
-            <p style="font-size: 12px; margin-top: 15px;">New? <a href="https://developers.deriv.com/" style="color: var(--accent);">Sign Up for Deriv API</a></p>
-        </div>
+    <div id="login-box">
+        <h2>TraderScheme</h2>
+        <input type="text" id="app-id-input" placeholder="Enter App ID">
+        <input type="password" id="token-input" placeholder="Enter API Token">
+        <button onclick="attemptLogin()">LOGIN</button>
+        <p style="font-size: 12px; margin-top: 15px;">New? <a href="https://developers.deriv.com/" target="_blank" style="color: var(--accent);">Sign Up for Deriv API</a></p>
     </div>
 
-    <div id="boot-screen">
-        <img src="IMG-20260529-WA0025.jpg" class="brain-logo">
-        <div id="progress-bar"><div id="progress"></div></div>
-    </div>
+    <div id="boot-screen">...</div>
 
-    <div id="main-ui">
-        <div class="nav-bar">
-            <div>TraderScheme Workspace</div>
-            <div id="balance-display">--- USD</div>
-        </div>
-        <div class="tabs">
-            <div class="tab active" onclick="showPage('dashboard', this)">Dashboard</div>
-            <div class="tab" onclick="showPage('bot', this)">Bot Builder</div>
-            <div class="tab" onclick="showPage('manual', this)">Manual</div>
-        </div>
-        <div id="dashboard" class="page active">
-            <div class="card">
-                <h3>Live Volatility 100 Index</h3>
-                <h1 id="price-display">Connecting...</h1>
-            </div>
-        </div>
-        <div id="bot" class="page"><h2>Bot Configuration</h2></div>
-        <div id="manual" class="page"><h2>Manual Trading</h2></div>
-    </div>
+    <div id="main-ui">...</div>
 
     <script>
-        let ws;
+        function attemptLogin() {
+            const appId = document.getElementById('app-id-input').value;
+            const token = document.getElementById('token-input').value;
 
-        function login() {
-            const appId = document.getElementById('app-id').value;
-            const token = document.getElementById('api-token').value;
-            if (!appId || !token) return alert("Enter ID and Token");
+            // Simple validation check
+            if(!appId || !token) return alert("Please enter both ID and Token");
 
-            // Verify login with Deriv
-            ws = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${appId}`);
-            ws.onopen = () => ws.send(JSON.stringify({ authorize: token }));
+            const ws = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${appId}`);
+
+            ws.onopen = () => {
+                ws.send(JSON.stringify({ authorize: token }));
+            };
+
             ws.onmessage = (msg) => {
                 const res = JSON.parse(msg.data);
-                if (res.error) return alert("Login Failed: " + res.error.message);
-                if (res.authorize) {
-                    document.getElementById('login-screen').style.display = 'none';
-                    startBoot();
+                if (res.error) {
+                    alert("Login Failed: " + res.error.message);
+                    ws.close();
+                } else if (res.authorize) {
+                    // Success! Hide login, show boot
+                    document.getElementById('login-box').style.display = 'none';
+                    startBootSequence();
                 }
             };
         }
 
-        function startBoot() {
+        function startBootSequence() {
             document.getElementById('boot-screen').style.display = 'flex';
-            let p = 0;
-            const interval = setInterval(() => {
-                p += 2;
-                document.getElementById('progress').style.width = p + "%";
-                if (p >= 100) {
-                    clearInterval(interval);
-                    document.getElementById('boot-screen').style.display = 'none';
-                    document.getElementById('main-ui').style.display = 'block';
-                    // Start Live Data
-                    ws.send(JSON.stringify({ balance: 1, subscribe: 1 }));
-                    ws.send(JSON.stringify({ ticks: "R_100", subscribe: 1 }));
-                }
-            }, 50);
-        }
-
-        ws.onmessage = (msg) => {
-            const res = JSON.parse(msg.data);
-            if (res.balance) document.getElementById('balance-display').innerText = res.balance.balance + " USD";
-            if (res.tick) document.getElementById('price-display').innerText = res.tick.quote;
-        };
-
-        function showPage(id, tab) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            tab.classList.add('active');
+            // ... (Add your existing interval/progress bar code here)
         }
     </script>
 </body>
-    </html>
+</html>
