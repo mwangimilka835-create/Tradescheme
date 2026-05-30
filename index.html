@@ -1154,5 +1154,21 @@
                         alert('🤖 AI Trading Assistant\n✓ Live Market Monitoring\n✓ Real-time Price Updates\n✓ Automatic Signal Detection');
                     });
 
-                    upd
+                    updateUI();
+    }
+}
+
+function showTradeMessage(message, type) {
+    const messageEl = document.getElementById('tradeMessage');
+    messageEl.textContent = message;
+    messageEl.className = 'status-message ' + type;
+
+    setTimeout(() => {
+        messageEl.textContent = '';
+        messageEl.className = '';
+    }, 4000);
+}
+    </script>
+</body>
+</html>
    
