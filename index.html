@@ -2,22 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>TraderWin Demo Workspace</title>
+    <title>TraderScheme Workspace</title>
     <style>
         :root { --bg: #0b1426; --panel: #1a2942; --accent: #62a3ff; --text: #ffffff; }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow: hidden; }
 
         /* Boot Screen */
         #boot-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
-        .brain-logo { width: 200px; margin-bottom: 20px; }
+        .brain-logo { width: 250px; margin-bottom: 20px; }
         #progress-bar { width: 300px; height: 6px; background: var(--panel); border-radius: 3px; margin: 20px 0; overflow: hidden; }
-        #progress { width: 0%; height: 100%; background: var(--accent); }
+        #progress { width: 0%; height: 100%; background: var(--accent); transition: width 0.1s; }
 
-        /* UI */
-        #main-ui { display: none; }
-        .nav-bar { background: var(--panel); padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        /* Main UI */
+        #main-ui { display: none; height: 100vh; display: flex; flex-direction: column; }
+        .nav-bar { background: var(--panel); padding: 15px; display: flex; justify-content: space-between; }
         .tabs { display: flex; background: var(--bg); margin: 10px; border-radius: 8px; overflow: hidden; }
-        .tab { flex: 1; padding: 12px; text-align: center; background: var(--panel); cursor: pointer; }
+        .tab { flex: 1; padding: 12px; text-align: center; background: var(--panel); cursor: pointer; font-weight: bold; }
         .tab.active { background: var(--accent); }
         .page { display: none; padding: 15px; }
         .page.active { display: block; }
@@ -33,8 +33,8 @@
 
     <div id="main-ui">
         <div class="nav-bar">
-            <div>TraderWin Workspace</div>
-            <div id="balance-display">Loading...</div>
+            <div>TraderScheme Workspace</div>
+            <div id="balance-display">Loading Balance...</div>
         </div>
         <div class="tabs">
             <div class="tab active" onclick="showPage('dashboard', this)">Dashboard</div>
@@ -43,21 +43,22 @@
         </div>
 
         <div id="dashboard" class="page active">
-            <div class="card" id="signal-box">
-                <h3>Live Volatility 100 Index</h3>
-                <h1 id="price-display">---</h1>
+            <div class="card">
+                <h3>Live Signal: Volatility 100 (1s)</h3>
+                <h1 id="price-display">Connecting...</h1>
+                <p id="signal-status">Waiting for data...</p>
             </div>
         </div>
-        <div id="bot-builder" class="page"><h2>Bot Builder Configuration</h2></div>
-        <div id="manual" class="page"><h2>Manual Trader Mode</h2></div>
+        <div id="bot-builder" class="page"><h2>Bot Builder</h2></div>
+        <div id="manual" class="page"><h2>Manual Trader</h2></div>
     </div>
 
     <script>
-        // REPLACE THESE WITH YOUR ACTUAL VALUES FOR TESTING
+        // CONFIGURATION: Replace these with your real details
         const APP_ID = '1089'; 
         const API_TOKEN = 'pat_074035b32dd29b413024ae73c1a07dc91242831bf045516b897db5d6362799cb';
 
-        // 1. Boot Animation
+        // 1. Boot Logic
         let p = 0;
         const interval = setInterval(() => {
             p += 2;
@@ -66,23 +67,29 @@
                 clearInterval(interval);
                 document.getElementById('boot-screen').style.display = 'none';
                 document.getElementById('main-ui').style.display = 'block';
-                connectDeriv(); // Start connection after boot
+                connectDeriv();
             }
         }, 50);
 
-        // 2. Connection Logic
+        // 2. API Bridge Logic
         function connectDeriv() {
             const ws = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${APP_ID}`);
             ws.onopen = () => ws.send(JSON.stringify({ authorize: API_TOKEN }));
             ws.onmessage = (msg) => {
                 const res = JSON.parse(msg.data);
-                if (res.authorize) ws.send(JSON.stringify({ balance: 1, subscribe: 1, ticks: "R_100" }));
+                if (res.authorize) {
+                    ws.send(JSON.stringify({ balance: 1, subscribe: 1 }));
+                    ws.send(JSON.stringify({ ticks: "R_100", subscribe: 1 }));
+                }
                 if (res.balance) document.getElementById('balance-display').innerText = res.balance.balance + " USD";
-                if (res.tick) document.getElementById('price-display').innerText = res.tick.quote;
+                if (res.tick) {
+                    document.getElementById('price-display').innerText = res.tick.quote;
+                    document.getElementById('signal-status').innerText = "Live Market Update";
+                }
             };
         }
 
-        // 3. Tab Logic
+        // 3. Page Switching
         function showPage(id, tab) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
