@@ -648,38 +648,322 @@
 ‎            color: var(--text-secondary);
 ‎        }
 ‎
-‎        /* ===== RESPONSIVE ===== */
-‎        @media (max-width: 768px) {
-‎            .header-center {
-‎                display: none;
-‎            }
-‎
-‎            .menu-toggle {
-‎                display: block;
-‎            }
-‎
-‎            .main-content {
-‎                padding: 20px 15px;
-‎            }
-‎
-‎            .bot-selection {
-‎                grid-template-columns: repeat(2, 1fr);
-‎            }
-‎
-‎            .ai-indicator,
-‎            .risk-disclaimer {
-‎                bottom: 20px;
-‎                right: 20px;
-‎                width: 70px;
-‎                height: 70px;
-‎            }
-‎
-‎            .ai-indicator {
-‎                font-size: 32px;
-‎            }
-‎
-‎            .risk-disclaimer {
-‎                bottom: 105px;
-‎                font-size: 11px;
-‎                padding: 10px 12px;
+‎        
+
+
+  /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .header-center {
+                display: none;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .main-content {
+                padding: 20px 15px;
+            }
+
+            .bot-selection {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .ai-indicator,
+            .risk-disclaimer {
+                bottom: 20px;
+                right: 20px;
+                width: 70px;
+                height: 70px;
+            }
+
+            .ai-indicator {
+                font-size: 32px;
+            }
+
+            .risk-disclaimer {
+                bottom: 105px;
+                font-size: 11px;
+                padding: 10px 12px;
+            }
+
+            .tabs-container {
+                padding-left: 0;
+                overflow-x: auto;
+            }
+
+            .tab {
+                padding: 12px 16px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .bot-selection {
+                grid-template-columns: 1fr;
+            }
+
+            .signals-container {
+                grid-template-columns: 1fr;
+            }
+
+            .bot-card {
+                padding: 16px;
+            }
+
+            .signal-card {
+                padding: 16px;
+            }
+
+            .main-content {
+                padding: 15px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- LOADING SCREEN -->
+    <div class="loading-screen">
+        <div class="loading-content">
+            <div class="brain-icon">🧠</div>
+            <h1 class="loading-title">TraderScheme</h1>
+            <p class="loading-subtitle">TraderScheme Trading Workspace</p>
+            <div class="loading-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+            <p class="loading-text">Initializing D-Bot...</p>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <p class="loading-text">Bot sequence <span id="progress-text">6%</span></p>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-left">
+            <button class="menu-toggle">☰</button>
+            <div class="logo">
+                <div class="logo-icon">TS</div>
+                <span>traderscheme.com/</span>
+            </div>
+        </div>
+        <div class="header-center">
+            <button class="deposit-btn">Deposit / Withdraw</button>
+            <div class="balance-display">
+                <span>6,790.80 USD</span>
+            </div>
+            <span class="demo-badge">Demo</span>
+        </div>
+    </header>
+
+    <!-- TABS -->
+    <div class="tabs-container">
+        <button class="tab active">Dashboard</button>
+        <button class="tab">Bot Builder</button>
+        <button class="tab">Manual Trading</button>
+        <button class="tab">Analytics</button>
+        <button class="tab">Settings</button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- BOT SELECTION SECTION -->
+        <div class="bot-selection">
+            <div class="bot-card">
+                <span class="bot-icon">📁</span>
+                <div class="bot-name">Load Bot</div>
+                <div class="volume-indicator">VOL 25 ...</div>
+            </div>
+            <div class="bot-card">
+                <span class="bot-icon">📊</span>
+                <div class="bot-name">Analysis Tool</div>
+                <div class="volume-indicator">VOL 50 ...</div>
+            </div>
+            <div class="bot-card">
+                <span class="bot-icon">⚡</span>
+                <div class="bot-name">Speed Bot</div>
+                <div class="volume-indicator">VOL 75 ...</div>
+            </div>
+            <div class="bot-card">
+                <span class="bot-icon">👆</span>
+                <div class="bot-name">Manual Trading</div>
+                <div class="volume-indicator">VOL 100 ...</div>
+            </div>
+        </div>
+
+        <!-- MARKET SCAN -->
+        <div class="market-scan">
+            <div class="scan-bars">
+                <div class="scan-bar"></div>
+                <div class="scan-bar"></div>
+                <div class="scan-bar"></div>
+                <div class="scan-bar"></div>
+                <div class="scan-bar"></div>
+                <div class="scan-bar"></div>
+                <div class="scan-bar"></div>
+                <div class="scan-bar"></div>
+                <div class="scan-bar"></div>
+            </div>
+            <p class="scan-text">Scanning markets...</p>
+            <p class="scan-subtext">No markets meet the signal threshold yet. The engine is watching continuously</p>
+        </div>
+
+        <!-- LIVE TRADING SIGNALS -->
+        <div class="section-title">Live Trading Signals</div>
+        <div class="signals-container">
+            <!-- Signal 1 -->
+            <div class="signal-card">
+                <div class="signal-header">
+                    <div class="signal-name">Volatility 100 (15) Index</div>
+                    <div class="signal-badge">📈</div>
+                </div>
+                <div class="signal-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Confidence</div>
+                        <div class="stat-value">41.6%</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Risk Level</div>
+                        <div style="font-size: 20px; color: var(--accent-red);">🔻</div>
+                    </div>
+                </div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" style="width: 41.6%;"></div>
+                </div>
+                <div class="confidence-label">
+                    <span>Bull / Bear</span>
+                    <span>2</span>
+                </div>
+                <button class="trade-action-btn">⚡ Load Odd Signal</button>
+                <button class="signal-details-toggle">▼ Show details</button>
+            </div>
+
+            <!-- Signal 2 -->
+            <div class="signal-card">
+                <div class="signal-header">
+                    <div class="signal-name">Volatility 50 Index</div>
+                    <div class="signal-badge">📈</div>
+                </div>
+                <div class="signal-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Confidence</div>
+                        <div class="stat-value">57.5%</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Buy Signal</div>
+                        <div style="font-size: 20px; color: var(--accent-cyan);">🔼</div>
+                    </div>
+                </div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" style="width: 57.5%;"></div>
+                </div>
+                <div class="confidence-label">
+                    <span>Entry / Exit</span>
+                    <span>8 / 5</span>
+                </div>
+                <button class="trade-action-btn">⚡ Load Odd Signal</button>
+                <button class="signal-details-toggle">▼ Show details</button>
+            </div>
+
+            <!-- Signal 3 -->
+            <div class="signal-card">
+                <div class="signal-header">
+                    <div class="signal-name">Crypto Momentum 24H</div>
+                    <div class="signal-badge">📈</div>
+                </div>
+                <div class="signal-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Confidence</div>
+                        <div class="stat-value">35.1%</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Status</div>
+                        <div style="font-size: 20px; color: var(--accent-purple);">🤖</div>
+                    </div>
+                </div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" style="width: 35.1%;"></div>
+                </div>
+                <div class="confidence-label">
+                    <span>Active / Idle</span>
+                    <span>3 / 7</span>
+                </div>
+                <button class="trade-action-btn">⚡ Load Odd Signal</button>
+                <button class="signal-details-toggle">▼ Show details</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- AI INDICATOR -->
+    <div class="ai-indicator">🤖</div>
+
+    <!-- RISK DISCLAIMER -->
+    <div class="risk-disclaimer">Risk Disclaimer</div>
+
+    <script>
+        // Tab switching functionality
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+
+        // Signal details toggle
+        const toggleBtns = document.querySelectorAll('.signal-details-toggle');
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.textContent = btn.textContent === '▼ Show details' ? '▲ Hide details' : '▼ Show details';
+            });
+        });
+
+        // Trade action click feedback
+        const tradeBtns = document.querySelectorAll('.trade-action-btn');
+        tradeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const original = btn.textContent;
+                btn.textContent = '✓ Signal Loaded';
+                btn.style.background = 'linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-blue) 100%)';
+                setTimeout(() => {
+                    btn.textContent = original;
+                    btn.style.background = '';
+                }, 1500);
+            });
+        });
+
+        // Animate progress text during loading
+        let progress = 6;
+        const progressInterval = setInterval(() => {
+            progress += Math.random() * 40;
+            if (progress > 95) progress = 95;
+            document.getElementById('progress-text').textContent = Math.floor(progress) + '%';
+        }, 200);
+
+        // Complete loading at the end
+        setTimeout(() => {
+            clearInterval(progressInterval);
+            document.getElementById('progress-text').textContent = '100%';
+        }, 2500);
+
+        // AI indicator click animation
+        const aiIndicator = document.querySelector('.ai-indicator');
+        aiIndicator.addEventListener('click', () => {
+            aiIndicator.style.animation = 'none';
+            setTimeout(() => {
+                aiIndicator.style.animation = 'aiFloat 3s ease-in-out infinite';
+            }, 50);
+        });
+
+        // Menu toggle for mobile
+        const menuToggle = document.querySelector('.menu-toggle');
+        menuToggle.addEventListener('click', () => {
+            alert('Menu opened (mobile view)');
+        });
+    </script>
+</body>
+</html>
 ‎           
