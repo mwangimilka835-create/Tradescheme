@@ -23,6 +23,34 @@
     --gold: #ffd700;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  /* Mobile Responsive Overrides */
+@media screen and (max-width: 768px) {
+  /* Prevent the app from overflowing the screen */
+  #app {
+    flex-direction: column !important;
+    padding: 10px !important;
+  }
+
+  /* Make bot cards stack vertically */
+  .bot-grid, .testi-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Ensure containers fit the phone screen width */
+  .container {
+    width: 95% !important;
+    padding: 0 !important;
+  }
+
+  /* Shrink text for mobile */
+  .section-title { font-size: 24px !important; }
+  
+  /* Ensure images/modals don't bleed off screen */
+  .bot-card, .modal-content {
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+}
 
   body {
     font-family: 'Exo 2', sans-serif;
