@@ -488,6 +488,10 @@
 </style>
 </head>
 <body>
+  <div id="loadingScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0d1117; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999;">
+  <img src="IMG-20260529-WA0025.jpg" style="width: 150px; border-radius: 20px; margin-bottom: 20px;">
+  <div id="progressText" style="color: #00c853; font-family: 'Rajdhani', sans-serif; font-size: 24px; font-weight: bold;">0%</div>
+  </div>
 
 <!-- HEADER -->
 <header class="header">
@@ -1377,5 +1381,25 @@ if (apiToken) {
   setTimeout(() => connectDeriv(true), 500);
 }
 </script>
+  <script>
+  window.addEventListener('load', function() {
+    let progress = 0;
+    const progressText = document.getElementById('progressText');
+    const loader = document.getElementById('loadingScreen');
+
+    const interval = setInterval(function() {
+      progress += 1;
+      progressText.textContent = progress + '%';
+
+      if (progress >= 100) {
+        clearInterval(interval);
+        // Fade out the loader
+        loader.style.transition = 'opacity 0.5s ease';
+        loader.style.opacity = '0';
+        setTimeout(() => { loader.style.display = 'none'; }, 500);
+      }
+    }, 30); // 30ms * 100 = 3 seconds loading time
+  });
+  </script>
 </body>
 </html>
