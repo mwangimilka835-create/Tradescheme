@@ -569,7 +569,6 @@ input::placeholder {
   <img src="IMG-20260529-WA0025.jpg" style="width: 150px; border-radius: 20px; margin-bottom: 20px;">
   <div id="progressText" style="color: #00c853; font-family: 'Rajdhani', sans-serif; font-size: 24px; font-weight: bold;">0%</div>
   </div>
-
 <!-- HEADER -->
 <header class="header">
   <div class="header-top">
@@ -581,10 +580,7 @@ input::placeholder {
         <div class="balance-currency" id="balanceCurr">Connect to Deriv</div>
       </div>
       <button class="btn-demo" id="demoBtn" onclick="toggleDemo()">DEMO</button>
-      <button class="btn-deposit" onclick="window.open('https://app.deriv.com/cashier', '_blank')">
-    <i class="fa fa-wallet"></i> Cashier (Deposit/Withdraw)
-      </button>
-
+      <button class="btn-deposit" onclick="showToast('Redirect to Deriv cashier...')">Deposit/Withdraw</button>
     </div>
   </div>
   <div id="auth-container">
@@ -594,6 +590,7 @@ input::placeholder {
     <button id="main-btn" onclick="handleAuth()">Sign Up</button>
     <p onclick="toggleMode()">Switch to <span id="toggle-text">Login</span></p>
   </div>
+
   <!-- TABS -->
   <div class="tabs">
     <button class="tab active" onclick="switchTab('home', this)">Home</button>
@@ -601,11 +598,13 @@ input::placeholder {
     <button class="tab" onclick="switchTab('bots', this)">Apex Bot</button>
     <button class="tab" onclick="switchTab('analysis', this)">Analysis Tools</button>
     <button class="tab" onclick="switchTab('manual', this)">Manual Trader</button>
-
     <button class="tab" onclick="switchTab('speedbot', this)">Speedbot</button>
     <button class="tab" onclick="switchTab('copy', this)">Copy Trader</button>
   </div>
 </header>
+
+
+
 
 <!-- TICKER STRIP -->
 <div class="ticker-strip">
