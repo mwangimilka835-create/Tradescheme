@@ -603,6 +603,31 @@ input::placeholder {
     <button class="tab" onclick="switchTab('bots', this)">Apex Bot</button>
     <button class="tab" onclick="switchTab('analysis', this)">Analysis Tools</button>
     <button class="tab" onclick="switchTab('manual', this)">Manual Trader</button>
+    <div class="trade-panel">
+    <h3>Manual Trading</h3>
+    
+    <div class="trade-row">
+      <label>Asset Symbol</label>
+      <select id="manualSym">
+        <option value="R_100">Volatility 100 Index</option>
+        <option value="R_75">Volatility 75 Index</option>
+        <option value="R_50">Volatility 50 Index</option>
+      </select>
+    </div>
+
+    <div class="trade-row">
+      <label>Duration (Ticks)</label>
+      <input type="number" id="manualDuration" value="5" min="5" max="10">
+      
+      <label>Stake ($)</label>
+      <input type="number" id="manualStake" value="10" min="1">
+    </div>
+
+    <div class="trade-btns">
+      <button class="btn-buy" onclick="placeTrade('CALL')">▲ RISE</button>
+      <button class="btn-sell" onclick="placeTrade('PUT')">▼ FALL</button>
+    </div>
+    </div>
     <button class="tab" onclick="switchTab('speedbot', this)">Speedbot</button>
     <button class="tab" onclick="switchTab('copy', this)">Copy Trader</button>
   </div>
