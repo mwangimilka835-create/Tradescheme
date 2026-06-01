@@ -717,48 +717,33 @@ input::placeholder {
   </div>
 
   <!-- QUICK TRADE -->
+<div class="view" id="view-manual">
   <div class="trade-panel">
-    <h3>Quick Trade</h3>
+    <h3>Manual Trading</h3>
+    
     <div class="trade-row">
-      <div class="trade-input-group">
-        <label>Contract Type</label>
-        <select id="contractType">
-          <option value="CALL">Rise (CALL)</option>
-          <option value="PUT">Fall (PUT)</option>
-          <option value="DIGITMATCH">Digit Match</option>
-          <option value="DIGITDIFF">Digit Diff</option>
-          <option value="DIGITOVER">Digit Over</option>
-          <option value="DIGITUNDER">Digit Under</option>
-        </select>
-      </div>
-      <div class="trade-input-group">
-        <label>Duration</label>
-        <select id="duration">
-          <option value="1t">1 Tick</option>
-          <option value="5t">5 Ticks</option>
-          <option value="10t">10 Ticks</option>
-          <option value="1m">1 Min</option>
-          <option value="5m">5 Min</option>
-        </select>
-      </div>
+      <label>Asset Symbol</label>
+      <select id="manualSym">
+        <option value="R_100">Volatility 100 Index</option>
+        <option value="R_75">Volatility 75 Index</option>
+        <option value="R_50">Volatility 50 Index</option>
+      </select>
     </div>
+
     <div class="trade-row">
-      <div class="trade-input-group">
-        <label>Stake ($)</label>
-        <input type="number" id="stakeAmt" value="1" min="0.35" step="0.5">
-      </div>
-      <div class="trade-input-group">
-        <label>Payout (est.)</label>
-        <input type="text" id="payoutEst" value="~$1.95" readonly style="color:var(--green)">
-      </div>
+      <label>Duration (Ticks)</label>
+      <input type="number" id="manualDuration" value="5" min="5" max="10">
+      
+      <label>Stake ($)</label>
+      <input type="number" id="manualStake" value="10" min="1">
     </div>
+
     <div class="trade-btns">
       <button class="btn-buy" onclick="placeTrade('CALL')">▲ RISE</button>
       <button class="btn-sell" onclick="placeTrade('PUT')">▼ FALL</button>
     </div>
   </div>
 </div>
-
 <!-- ══ BOTS VIEW ══ -->
 <div class="view" id="view-bots">
   <input type="text" placeholder="🔍  Search for a bot..." style="
