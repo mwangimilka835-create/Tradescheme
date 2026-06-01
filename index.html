@@ -25,6 +25,17 @@
     --accent: #00c853;
     --gold: #ffd700;
   }
+  /* Ensure input text is visible */
+input {
+    color: #ffffff !important;
+    background-color: #1a1a1a !important; /* Make sure the input background is light enough */
+    border: 1px solid #444 !important;
+}
+
+/* Also ensure the placeholder text is visible */
+input::placeholder {
+    color: #aaaaaa !important;
+}
   #auth-container {
     position: fixed;         /* Keeps it on top of everything */
     top: 0;
