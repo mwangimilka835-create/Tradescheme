@@ -25,6 +25,20 @@
     --accent: #00c853;
     --gold: #ffd700;
   }
+  #auth-container {
+    position: fixed;         /* Keeps it on top of everything */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #0d0d0d; /* Matches your dark theme */
+    z-index: 10000;          /* Ensures it sits above all other elements */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   /* Mobile Responsive Overrides */
 @media screen and (max-width: 768px) {
