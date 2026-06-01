@@ -1493,30 +1493,35 @@ function toggleMode() {
     document.getElementById('main-btn').innerText = isLoginMode ? 'Login' : 'Sign Up';
     document.getElementById('toggle-text').innerText = isLoginMode ? 'Sign Up' : 'Login';
 }
-
 function handleAuth() {
-    const user = document.getElementById('username').value;
-    const pass = document.getElementById('password').value;
+    const user = document.getElementById('username').value.trim();
+    const pass = document.getElementById('password').value.trim();
+
+    // 1. Check if fields are empty
+    if (user === "" || pass === "") {
+        alert("Please enter both a username and password.");
+        return; // Stops the function here
+    }
 
     if (!isLoginMode) {
-        // Sign Up: Save to localStorage
+        // Sign Up Mode
         localStorage.setItem('storedUser', user);
         localStorage.setItem('storedPass', pass);
         alert("Account created! Now you can login.");
         toggleMode();
-      } else {
-    // Login: Verify
-    if (user === localStorage.getItem('storedUser') && pass === localStorage.getItem('storedPass')) {
-        alert("Login Successful!");
-        
-        // ADD THIS LINE BELOW:
-        document.getElementById('auth-container').style.display = 'none';
-        
     } else {
-        alert("Incorrect credentials!");
+        // Login Mode
+        if (user === localStorage.getItem('storedUser') && pass === localStorage.getItem('storedPass')) {
+            alert("Login Successful!");
+            // This hides the login modal
+            document.getElementById('auth-container').style.display = 'none';
+        } else {
+            // This runs if the user/pass doesn't match what was saved
+            alert("Incorrect username or password!");
+        }
     }
     }
-    }
+
     
   </script>
 </body>
