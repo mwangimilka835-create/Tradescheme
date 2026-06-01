@@ -1472,16 +1472,19 @@ function handleAuth() {
         localStorage.setItem('storedPass', pass);
         alert("Account created! Now you can login.");
         toggleMode();
+      } else {
+    // Login: Verify
+    if (user === localStorage.getItem('storedUser') && pass === localStorage.getItem('storedPass')) {
+        alert("Login Successful!");
+        
+        // ADD THIS LINE BELOW:
+        document.getElementById('auth-container').style.display = 'none';
+        
     } else {
-        // Login: Verify
-        if (user === localStorage.getItem('storedUser') && pass === localStorage.getItem('storedPass')) {
-            alert("Login Successful!");
-            // Redirect to your app here
-        } else {
-            alert("Incorrect credentials!");
-        }
+        alert("Incorrect credentials!");
     }
-      }
-  </script>
+    }
+    }
+    
 </body>
 </html>
