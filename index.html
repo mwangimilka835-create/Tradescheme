@@ -581,7 +581,10 @@ input::placeholder {
         <div class="balance-currency" id="balanceCurr">Connect to Deriv</div>
       </div>
       <button class="btn-demo" id="demoBtn" onclick="toggleDemo()">DEMO</button>
-      <button class="btn-deposit" onclick="showToast('Redirect to Deriv cashier...')">Deposit/Withdraw</button>
+      <button class="btn-deposit" onclick="window.open('https://app.deriv.com/cashier', '_blank')">
+    <i class="fa fa-wallet"></i> Cashier (Deposit/Withdraw)
+      </button>
+
     </div>
   </div>
   <div id="auth-container">
