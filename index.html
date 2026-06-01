@@ -1467,40 +1467,32 @@ document.getElementById('stakeAmt')?.addEventListener('input', (e) => {
   });
 });
 
-// Auto-reconnect on token present
-if (apiToken) {
-  setTimeout(() => connectDeriv(true), 500);
+
+  // Auto-reconnect on token present
+If (apiToken) {
+    setTimeout(() => connectDeriv(true), 500);
 }
-      function placeTrade(type) {
-    const symbol = document.getElementById('manualSym').value;
-    const duration = document.getElementById('manualDuration').value;
-    const stake = document.getElementById('manualStake').value;
-    
-    // Add your API logic here
-    console.log("Placing trade: " + type + " on " + symbol);
-    alert("Trade Placed!");
-  }
 </script>
-  <script>
-  window.addEventListener('load', function() {
+<script>
+window.addEventListener('load', function() {
     let progress = 0;
     const progressText = document.getElementById('progressText');
     const loader = document.getElementById('loadingScreen');
 
     const interval = setInterval(function() {
-      progress += 1;
-      progressText.textContent = progress + '%';
+        progress += 1;
+        progressText.textContent = progress + '%';
 
-      if (progress >= 100) {
-        clearInterval(interval);
-        // Fade out the loader
-        loader.style.transition = 'opacity 0.5s ease';
-        loader.style.opacity = '0';
-        setTimeout(() => { loader.style.display = 'none'; }, 500);
-      }
+        if (progress >= 100) {
+            clearInterval(interval);
+            // Fade out the loader
+            loader.style.transition = 'opacity 0.5s ease';
+            loader.style.opacity = '0';
+            setTimeout(() => { loader.style.display = 'none'; }, 500);
+        }
     }, 30); // 30ms * 100 = 3 seconds loading time
-  });
-    let isLoginMode = false;
+});
+let isLoginMode = false;
 
 function toggleMode() {
     isLoginMode = !isLoginMode;
@@ -1508,6 +1500,7 @@ function toggleMode() {
     document.getElementById('main-btn').innerText = isLoginMode ? 'Login' : 'Sign Up';
     document.getElementById('toggle-text').innerText = isLoginMode ? 'Sign Up' : 'Login';
 }
+
 function handleAuth() {
     const user = document.getElementById('username').value.trim();
     const pass = document.getElementById('password').value.trim();
@@ -1527,3 +1520,27 @@ function handleAuth() {
     } else {
         // Login Mode
         if (user === localStorage.getItem('storedUser') && pass === localStorage.getItem('storedPass')) {
+            alert("Login Successful!");
+            // This hides the login modal
+            document.getElementById('auth-container').style.display = 'none';
+        } else {
+            // This runs if the user/pass doesn't match what was saved
+            alert("Incorrect username or password!");
+        }
+    }
+}
+
+function placeTrade(type) {
+    const symbol = document.getElementById('manualSym').value;
+    const duration = document.getElementById('manualDuration').value;
+    const stake = document.getElementById('manualStake').value;
+
+    // Add your API logic here
+    console.log("Placing trade: " + type + " on " + symbol);
+    alert("Trade Placed!");
+}
+</script>
+</body>
+</html>
+
+
