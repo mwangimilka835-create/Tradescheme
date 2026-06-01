@@ -716,25 +716,23 @@ input::placeholder {
     <canvas id="priceChart" height="200"></canvas>
   </div>
 <!-- QUICK TRADE -->
-  <div class="view" id="view-manual" style="display: none;">
+ <div class="view" id="view-manual" style="display: none;">
   <div class="trade-panel">
     <h3>Manual Trading</h3>
-
+    
     <div class="trade-row">
       <label>Asset Symbol</label>
       <select id="manualSym">
         <option value="R_100">Volatility 100 Index</option>
         <option value="R_75">Volatility 75 Index</option>
-        <option value="R_50">Volatility 50 Index</option>
       </select>
     </div>
-
+    
     <div class="trade-row">
       <label>Duration (Ticks)</label>
-      <input type="number" id="manualDuration" value="5" min="5" max="10">
-      
+      <input type="number" id="manualDuration" value="5">
       <label>Stake ($)</label>
-      <input type="number" id="manualStake" value="10" min="1">
+      <input type="number" id="manualStake" value="10">
     </div>
 
     <div class="trade-btns">
@@ -742,7 +740,7 @@ input::placeholder {
       <button class="btn-sell" onclick="placeTrade('PUT')">▼ FALL</button>
     </div>
   </div>
-          </div>
+ </div>
 
 <!-- ══ BOTS VIEW ══ -->
 <div class="view" id="view-bots">
