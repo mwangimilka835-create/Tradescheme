@@ -1471,6 +1471,15 @@ document.getElementById('stakeAmt')?.addEventListener('input', (e) => {
 if (apiToken) {
   setTimeout(() => connectDeriv(true), 500);
 }
+      function placeTrade(type) {
+    const symbol = document.getElementById('manualSym').value;
+    const duration = document.getElementById('manualDuration').value;
+    const stake = document.getElementById('manualStake').value;
+    
+    // Add your API logic here
+    console.log("Placing trade: " + type + " on " + symbol);
+    alert("Trade Placed!");
+  }
 </script>
   <script>
   window.addEventListener('load', function() {
@@ -1518,26 +1527,3 @@ function handleAuth() {
     } else {
         // Login Mode
         if (user === localStorage.getItem('storedUser') && pass === localStorage.getItem('storedPass')) {
-            alert("Login Successful!");
-            // This hides the login modal
-            document.getElementById('auth-container').style.display = 'none';
-        } else {
-            // This runs if the user/pass doesn't match what was saved
-            alert("Incorrect username or password!");
-        }
-    }
-    }
-    function placeTrade(type) {
-    const symbol = document.getElementById('manualSym').value;
-    const duration = document.getElementById('manualDuration').value;
-    const stake = document.getElementById('manualStake').value;
-    
-    // Add your API logic here
-    console.log("Placing trade: " + type + " on " + symbol);
-    alert("Trade Placed!");
-    }
-
-    
-  </script>
-</body>
-</html>
