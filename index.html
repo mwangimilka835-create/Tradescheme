@@ -856,6 +856,27 @@ Market / Symbol</label>
     <button class="btn-primary" onclick="showToast('Connect to Deriv first!')">Configure Speedbot</button>
   </div>
 </div>
+  <div class="view" id="view-analysis">
+  <div class="analysis-card">
+    <h3>Live Technical Signals</h3>
+    <div class="indicator-row"><span class="ind-name">RSI (14)</span><span class="ind-val" id="rsi">--</span><span id="rsiSig" class="ind-sig">--</span></div>
+    <div class="indicator-row"><span class="ind-name">SMA (20)</span><span class="ind-val" id="sma">--</span><span id="smaSig" class="ind-sig">--</span></div>
+    <div class="indicator-row"><span class="ind-name">EMA (50)</span><span class="ind-val" id="ema">--</span><span id="emaSig" class="ind-sig">--</span></div>
+    <div class="indicator-row"><span class="ind-name">Bollinger</span><span class="ind-val" id="bb">--</span><span id="bbSig" class="ind-sig">--</span></div>
+    <div class="indicator-row"><span class="ind-name">Stochastic</span><span class="ind-val" id="stoch">--</span><span id="stochSig" class="ind-sig">--</span></div>
+  </div>
+
+  <div class="analysis-card">
+    <h3>Market Sentiment</h3>
+    <div class="sent-labels">
+        <span>BUY: <span id="sigBuy">0</span></span>
+        <span>SELL: <span id="sigSell">0</span></span>
+        <span>NEUTRAL: <span id="sigNeutral">0</span></span>
+    </div>
+    <div class="sent-labels" style="margin-top:10px"><span>BEARISH</span><span id="sentPct">50%</span><span>BULLISH</span></div>
+    <div class="sent-track"><div id="sentFill" class="sent-fill" style="width: 50%;"></div></div>
+  </div>
+  </div>
 
 <!-- ══ COPY TRADER VIEW ══ -->
 <div class="view" id="view-copy">
