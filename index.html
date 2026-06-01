@@ -1526,6 +1526,15 @@ function handleAuth() {
         }
     }
     }
+    function placeTrade(type) {
+    const symbol = document.getElementById('manualSym').value;
+    const duration = document.getElementById('manualDuration').value;
+    const stake = document.getElementById('manualStake').value;
+    
+    // Add your API logic here
+    console.log("Placing trade: " + type + " on " + symbol);
+    alert("Trade Placed!");
+    }
 
     
   </script>
